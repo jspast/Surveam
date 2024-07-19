@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="steam-survey-explorer">
+	<schema id="io.github.jspast.SteamSurveyExplorer" path="/io/github/jspast/SteamSurveyExplorer">
+	</schema>
+</schemalist>

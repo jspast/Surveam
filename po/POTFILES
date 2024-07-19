@@ -1,0 +1,6 @@
+data/io.github.jspast.SteamSurveyExplorer.desktop.in
+data/io.github.jspast.SteamSurveyExplorer.metainfo.xml.in
+data/io.github.jspast.SteamSurveyExplorer.gschema.xml
+src/main.py
+src/window.py
+src/window.ui

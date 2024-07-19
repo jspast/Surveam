@@ -1,0 +1,36 @@
+#!@PYTHON@
+
+
+import os
+import sys
+import signal
+import locale
+import gettext
+
+VERSION = '@VERSION@'
+pkgdatadir = '@pkgdatadir@'
+localedir = '@localedir@'
+
+sys.path.insert(1, pkgdatadir)
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+try:
+    locale.bindtextdomain('steam-survey-explorer', localedir)
+    locale.textdomain('steam-survey-explorer')
+    gettext.install('steam-survey-explorer', localedir)
+except AttributeError as e:
+    # Python built without gettext support does not have
+    # bindtextdomain() and textdomain().
+    print(
+        "Could not bind the gettext translation domain. Some"
+        " translations will not work. Error:\n{}".format(e))
+
+if __name__ == '__main__':
+    import gi
+
+    from gi.repository import Gio
+    resource = Gio.Resource.load(os.path.join(pkgdatadir, 'steam-survey-explorer.gresource'))
+    resource._register()
+
+    from steam_survey_explorer import main
+    sys.exit(main.main(VERSION))

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=SteamSurveyExplorer
+Exec=steam-survey-explorer
+Icon=io.github.jspast.SteamSurveyExplorer
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true
