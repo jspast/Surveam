@@ -1,0 +1,48 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $CategoryWindow : $AdwWindow {
+  default-width: 600;
+  default-height: 400;
+  width-request: 360;
+  height-request: 200;
+
+  Adw.ToolbarView toolbar_view {
+
+    [top]
+    Adw.HeaderBar header_bar {
+      title-widget: Adw.ViewSwitcher view_switcher {
+        stack: stack;
+        policy: wide;
+      };
+    }
+
+    Adw.ViewStack stack {
+
+      Adw.ViewStackPage page_stats {
+        name: _("Stats");
+        title: _("Stats");
+        icon-name: "table-symbolic";
+        use-underline: true;
+
+        child: Gtk.ScrolledWindow stats_window {
+        };
+      }
+
+      Adw.ViewStackPage page_chart {
+        name: _("Chart");
+        title: _("Chart");
+        icon-name: "integral3-symbolic";
+        use-underline: true;
+
+        child: Gtk.ScrolledWindow chart_window {
+        };
+      }
+    }
+
+    [bottom]
+    Gtk.ActionBar action_bar {
+
+    }
+  }
+}

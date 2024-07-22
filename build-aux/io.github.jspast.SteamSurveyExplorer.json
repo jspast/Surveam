@@ -23,6 +23,7 @@
         "*.a"
     ],
     "modules" : [
+    	"python3-matplotlib.json",
         {
             "name" : "steam-survey-explorer",
             "builddir" : true,
@@ -30,7 +31,7 @@
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "file:///home/joao/Projetos"
+                    "url" : "https://github.com/jspast/SteamSurveyExplorer.git"
                 }
             ]
         }

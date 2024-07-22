@@ -1,1 +1,3 @@
 builddir
+/subprojects/blueprint-compiler
+/build-aux/Output

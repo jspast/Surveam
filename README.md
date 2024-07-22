@@ -63,6 +63,14 @@ pip install --force-reinstall (Resolve-Path C:\gtk\wheels\PyGObject*.whl)
 pip install --force-reinstall (Resolve-Path C:\gtk\wheels\pycairo*.whl)
 ```
 
+### Matplotlib
+
+Biblioteca usada para gerar gráficos, também deve ser instalada pelo pip:
+
+```PowerShell
+pip install matplotlib
+```
+
 ### Compilando
 
 No diretório que deseja colocar o programa, clone o repositório com [git](https://gitforwindows.org/):

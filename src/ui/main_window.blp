@@ -1,0 +1,214 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $MainWindow : $AdwApplicationWindow {
+  default-width: 800;
+  default-height: 600;
+  width-request: 360;
+  height-request: 200;
+  title: _("Steam Survey Explorer");
+
+  Adw.Breakpoint {
+    condition ("max-width: 600sp")
+
+    setters {
+     header_bar.title-widget: null;
+     toolbar_view.reveal-bottom-bars: true;
+    }
+  }
+
+  Adw.ToolbarView toolbar_view {
+    reveal-bottom-bars: false;
+
+    [top]
+    Gtk.Box {
+      orientation: vertical;
+
+      Adw.HeaderBar header_bar {
+        title-widget: Adw.ViewSwitcher view_switcher {
+          stack: stack;
+          policy: wide;
+        };
+
+        [start]
+        Gtk.ToggleButton search_button {
+          icon-name: "system-search-symbolic";
+          tooltip-text: _("Sidebar");
+          active: bind search_bar.search-mode-enabled;
+        }
+
+        [end]
+        Gtk.MenuButton menu_button {
+          primary: true;
+          icon-name: "open-menu-symbolic";
+          tooltip-text: _("Menu");
+          menu-model: primary_menu;
+        }
+      }
+
+      Gtk.SearchBar search_bar {
+        search-mode-enabled: bind search_button.active;
+
+        Adw.BreakpointBin {
+          width-request: 10;
+          height-request: 10;
+
+          Adw.Breakpoint {
+            condition ("max-width: 500sp")
+
+            setters {
+              search_bar_box.orientation: vertical;
+              search_bar_box.valign: fill;
+            }
+          }
+
+          Gtk.Box search_bar_box {
+            spacing: 5;
+            hexpand: true;
+
+            Gtk.SearchEntry {
+              hexpand: true;
+              placeholder-text: _("Search for items");
+            }
+
+            Gtk.Box date_selection {
+              spacing: 5;
+              hexpand: true;
+
+              Gtk.Box year_selection {
+                spacing: 5;
+                hexpand: true;
+                halign: end;
+
+                Gtk.Button year_prev {
+                  icon-name: "pan-start-symbolic";
+                  styles ["circular"]
+                }
+
+                Gtk.DropDown year_dropdown {
+
+                }
+
+                Gtk.Button year_next {
+                  icon-name: "pan-end-symbolic";
+                  styles ["circular"]
+                }
+              }
+
+              Gtk.Box month_selection {
+                spacing: 5;
+                hexpand: true;
+                halign: start;
+
+                Gtk.Button month_prev {
+                  icon-name: "pan-start-symbolic";
+                  styles ["circular"]
+                }
+
+                Gtk.DropDown month_dropdown {
+                  width-request: 90;
+
+                }
+
+                Gtk.Button month_next {
+                  icon-name: "pan-end-symbolic";
+                  styles ["circular"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    Adw.ViewStack stack {
+
+      Adw.ViewStackPage page_combined {
+        name: _("Combined");
+        title: _("Combined");
+        icon-name: "people-symbolic";
+        use-underline: true;
+
+        child: Gtk.ScrolledWindow {
+          Adw.Clamp {
+
+          }
+        };
+      }
+
+      Adw.ViewStackPage page_windows {
+        name: "Windows";
+        title: "Windows";
+        icon-name: "grid-filled-symbolic";
+        use-underline: true;
+
+        child: Gtk.ScrolledWindow {
+          Adw.Clamp {
+
+          }
+        };
+      }
+
+      Adw.ViewStackPage page_linux {
+        name: "Linux";
+        title: "Linux";
+        icon-name: "penguin-alt-symbolic";
+        use-underline: true;
+
+        child: Gtk.ScrolledWindow {
+          Adw.Clamp {
+
+            Gtk.Box {
+              orientation: vertical;
+              margin-top: 24;
+              margin-bottom: 24;
+              margin-start: 12;
+              margin-end: 12;
+              spacing: 24;
+
+              Gtk.ListBox windows_list {
+                selection-mode: none;
+                styles ["boxed-list"]
+              }
+            }
+          }
+        };
+      }
+
+      Adw.ViewStackPage page_mac {
+        name: "Mac";
+        title: "Mac";
+        icon-name: "tv-symbolic";
+        use-underline: true;
+
+        child: Gtk.ScrolledWindow {
+          Adw.Clamp {
+
+          }
+        };
+      }
+    }
+
+    [bottom]
+    Adw.ViewSwitcherBar switcher_bar {
+      reveal: true;
+      stack: stack;
+    }
+  }
+}
+
+menu primary_menu {
+
+  section {
+    item  {
+      label: _("Open CSV");
+      action: "app.open-csv";
+    }
+  }
+
+  section{
+    item {
+      label: _("About SteamSurveyExplorer");
+      action: "app.about";
+    }
+  }
+}

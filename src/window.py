@@ -1,6 +1,6 @@
 from gi.repository import Adw, Gio, Gtk, GObject
 
-@Gtk.Template(resource_path='/io/github/jspast/SteamSurveyExplorer/window.ui')
+@Gtk.Template(resource_path='/io/github/jspast/SteamSurveyExplorer/ui/main_window.ui')
 class MainWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'MainWindow'
 
@@ -24,7 +24,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         self.windows_version = Adw.ExpanderRow()
         self.windows_list.append(self.windows_version)
-        self.windows_version.set_property("title", "Windows Version")
+        self.windows_version.set_property("title", "Linux Version")
         self.windows_version.set_property("title-lines", 1)
 
         self.windows_graph = Gtk.Button()
@@ -33,6 +33,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.windows_graph.set_property("visible", False)
         self.windows_graph.set_property("has-frame", False)
         self.windows_graph.set_property("valign", "center")
+        self.windows_graph.set_property("action-name", "app.category")
 
         self.windows_label3 = Gtk.Label(label='-1.89%')
         self.windows_version.add_suffix(self.windows_label3)
@@ -47,6 +48,12 @@ class MainWindow(Adw.ApplicationWindow):
         self.windows_label1 = Gtk.Label(label='"SteamOS Holo" 64 bit')
         self.windows_version.add_suffix(self.windows_label1)
         self.windows_label1.set_property("ellipsize", "end")
+
+        for x in range(10):
+            self.windows_version2 = Adw.ExpanderRow()
+            self.windows_list.append(self.windows_version2)
+            self.windows_version2.set_property("title", "System RAM")
+            self.windows_version2.set_property("title-lines", 1)
 
         self.windows_version.connect("notify::expanded", self.on_windows_version_expanded)
 
@@ -123,13 +130,13 @@ class MainWindow(Adw.ApplicationWindow):
 
         factory1.connect("bind", _on_factory_bind, "name")
         self.windows_col1.set_factory(factory1)
-        
+
         factory2.connect("bind", _on_factory_bind, "percentage")
         self.windows_col2.set_factory(factory2)
 
-        factory3.connect("bind", _on_factory_bind, "change")        
+        factory3.connect("bind", _on_factory_bind, "change")
         self.windows_col3.set_factory(factory3)
-        
+
         # Custom Sorter is required because PyGObject doesn't currently support
         # Gtk.Expression: https://gitlab.gnome.org/GNOME/pygobject/-/issues/356
 

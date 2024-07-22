@@ -5,7 +5,9 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 
 from gi.repository import Gtk, Gio, Adw
+
 from .window import MainWindow
+from .category_window import CategoryWindow
 
 class SteamSurveyExplorerApplication(Adw.Application):
     """The main application singleton class."""
@@ -15,7 +17,8 @@ class SteamSurveyExplorerApplication(Adw.Application):
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
-        self.create_action('preferences', self.on_preferences_action)
+        self.create_action('open-csv', self.on_open_csv_action)
+        self.create_action('category', self.on_category_action)
 
     def do_activate(self):
         """Called when the application is activated.
@@ -28,20 +31,21 @@ class SteamSurveyExplorerApplication(Adw.Application):
             win = MainWindow(application=self)
         win.present()
 
-    def on_about_action(self, widget, _):
+    def on_about_action(self, *args):
         """Callback for the app.about action."""
-        about = Adw.AboutWindow(transient_for=self.props.active_window,
-                                application_name='SteamSurveyExplorer',
-                                application_icon='io.github.jspast.SteamSurveyExplorer',
-                                developer_name='Dante Pagliarini, Gabriel Leal e João Pastorello',
-                                version='0.1.0',
-                                developers=['Dante Pagliarini, Gabriel Leal e João Pastorello'],
-                                copyright='© 2024 Dante Pagliarini, Gabriel Leal e João Pastorello')
-        about.present()
+        about = Gtk.Builder.new_from_resource(
+            '/io/github/jspast/SteamSurveyExplorer/ui/about.ui'
+        ).get_object('about')
+        about.present(self.props.active_window)
 
-    def on_preferences_action(self, widget, _):
-        """Callback for the app.preferences action."""
-        print('app.preferences action activated')
+    def on_open_csv_action(self, widget, _):
+        """Callback for the app.open-csv action."""
+        print('app.open-csv action activated')
+
+    def on_category_action(self, *args):
+        """Callback for the app.category action."""
+        category_win = CategoryWindow()
+        category_win.present()
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.

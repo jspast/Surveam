@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/io/github/jspast/SteamSurveyExplorer">
-    <file preprocess="xml-stripblanks">window.ui</file>
+    <file>ui/main_window.ui</file>
+    <file>ui/about.ui</file>
+    <file>ui/category_window.ui</file>
   </gresource>
   <gresource prefix="/io/github/jspast/SteamSurveyExplorer/icons/scalable/actions/">
     <file alias="people-symbolic.svg" preprocess="xml-stripblanks">assets/icons/people-symbolic.svg</file>
@@ -10,5 +12,7 @@
     <file alias="tv-symbolic.svg" preprocess="xml-stripblanks">assets/icons/tv-symbolic.svg</file>
     <file alias="sidebar-show-symbolic.svg" preprocess="xml-stripblanks">assets/icons/sidebar-show-symbolic.svg</file>
     <file alias="graph-symbolic.svg" preprocess="xml-stripblanks">assets/icons/graph-symbolic.svg</file>
+    <file alias="integral3-symbolic.svg" preprocess="xml-stripblanks">assets/icons/integral3-symbolic.svg</file>
+    <file alias="table-symbolic.svg" preprocess="xml-stripblanks">assets/icons/table-symbolic.svg</file>
   </gresource>
 </gresources>
