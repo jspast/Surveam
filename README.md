@@ -1,22 +1,24 @@
 # SteamSurveyExplorer
 
-## Compilando no Linux
+## Desenvolvendo no Linux
 
 ### Usando GNOME Builder
 
-Na tela inicial, clique em clonar repositório.
+Na tela inicial, clique em **clonar repositório**.
 
-Use o endereço: https://github.com/jspast/SteamSurveyExplorer.git
+Use o endereço: git@github.com:jspast/SteamSurveyExplorer.git
 
-Para compilar, clique o botão de play.
+Para compilar e executar, clique no botão de play.
 
-## Compilando no Windows
+## Desenvolvendo no Windows
 
-### Python
+### Instalando dependências
+
+#### Python
 
 Primeiro, instale o [Python](https://www.python.org/downloads/windows/).
 
-### Meson
+#### Meson
 
 Depois de instalar o Python, baixe o Meson, que é o sistema de compilação utilizado:
 
@@ -24,7 +26,7 @@ Depois de instalar o Python, baixe o Meson, que é o sistema de compilação uti
 pip install meson
 ```
 
-### GTK
+#### GTK
 
 É preciso ter as bibliotecas GTK instaladas e configuradas.
 
@@ -54,7 +56,7 @@ $newXDG_DATA_HOME = $currentXDG_DATA_HOME + ";$HOME\.local\share"
 
 Também é possível alterar as variáveis de ambiente nas Configurações avançadas do sistema.
 
-### PyGObject e pycairo
+#### PyGObject e pycairo
 
 Essas dependências devem ser instaladas pelo pip, com correções feitas pelo gvsbuild:
 
@@ -63,7 +65,7 @@ pip install --force-reinstall (Resolve-Path C:\gtk\wheels\PyGObject*.whl)
 pip install --force-reinstall (Resolve-Path C:\gtk\wheels\pycairo*.whl)
 ```
 
-### Matplotlib
+#### Matplotlib
 
 Biblioteca usada para gerar gráficos, também deve ser instalada pelo pip:
 
@@ -71,7 +73,7 @@ Biblioteca usada para gerar gráficos, também deve ser instalada pelo pip:
 pip install matplotlib
 ```
 
-### Compilando
+### Preparando para compilar
 
 No diretório que deseja colocar o programa, clone o repositório com [git](https://gitforwindows.org/):
 
@@ -79,8 +81,6 @@ No diretório que deseja colocar o programa, clone o repositório com [git](http
 git clone https://github.com/jspast/SteamSurveyExplorer.git
 cd SteamSurveyExplorer
 ```
-
-#### Configuração
 
 Inicialize a pasta de compilação:
 
@@ -94,7 +94,7 @@ Configure para instalar na pasta:
 meson configure builddir --prefix $PWD\builddir\output\
 ```
 
-#### Comandos principais
+### Compilando e executando
 
 Compile o programa:
 
@@ -102,10 +102,10 @@ Compile o programa:
 meson compile -C builddir
 ```
 
-Instale o programa, removendo instalação antiga se existir:
+Instale o programa:
 
 ```PowerShell
-Remove-Item -Path builddir\output\bin\steam-survey-explorer -Force ; meson install -C builddir
+meson install -C builddir
 ```
 
 Execute o programa:

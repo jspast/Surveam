@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 plt.style.use(['dark_background'])
 mpl.rcParams['axes.facecolor'] = ('#242424')
 mpl.rcParams['figure.facecolor'] = ('#242424')
-mpl.rcParams['savefig.transparent'] = True
-
 
 @Gtk.Template(resource_path='/io/github/jspast/SteamSurveyExplorer/ui/category_window.ui')
 class CategoryWindow(Adw.Window):

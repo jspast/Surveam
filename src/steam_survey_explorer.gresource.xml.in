@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/io/github/jspast/SteamSurveyExplorer">
-    <file>ui/main_window.ui</file>
-    <file>ui/about.ui</file>
-    <file>ui/category_window.ui</file>
+  <gresource prefix="@PREFIX@">
+    <file preprocess="xml-stripblanks">ui/main_window.ui</file>
+    <file preprocess="xml-stripblanks">ui/about.ui</file>
+    <file preprocess="xml-stripblanks">ui/category_window.ui</file>
   </gresource>
-  <gresource prefix="/io/github/jspast/SteamSurveyExplorer/icons/scalable/actions/">
+  <gresource prefix="@PREFIX@/icons/scalable/actions/">
     <file alias="people-symbolic.svg" preprocess="xml-stripblanks">assets/icons/people-symbolic.svg</file>
     <file alias="grid-filled-symbolic.svg" preprocess="xml-stripblanks">assets/icons/grid-filled-symbolic.svg</file>
     <file alias="penguin-alt-symbolic.svg" preprocess="xml-stripblanks">assets/icons/penguin-alt-symbolic.svg</file>

@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-	<id>io.github.jspast.SteamSurveyExplorer.desktop</id>
+	<id>@APP_ID@</id>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>LicenseRef-proprietary</project_license>
+  <name>Steam Survey Explorer</name>
+  <summary>Explore Steam Hardware and Software Survey data</summary>
 	<description>
-	  <p>No description</p>
+	  <p>Steam Survey Explorer is an app that allows you to analyse and compare information from the Steam Hardware and Software Survey. You can search for categories and see how they changed over time.</p>
 	</description>
+  <launchable type="desktop-id">@APP_ID@.desktop</launchable>
+  <content_rating type="oars-1.1" />
 </component>

@@ -8,9 +8,12 @@ project(
   ],
 )
 
-platform = build_machine.system()
+# Translations are broken on Windows for multiple reasons
+# gresources don't work and MSYS2 seems to have also broken the gettext package
+if host_machine.system() != 'windows'
+  i18n = import('i18n')
+endif
 
-i18n = import('i18n')
 gnome = import('gnome')
 python = import('python')
 
@@ -30,29 +33,41 @@ libadwaita = dependency(
   ]
 )
 
+py_installation = python.find_installation('python3')
+
+python_dir = join_paths(get_option('prefix'), py_installation.get_install_dir())
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
+libexecdir = join_paths(get_option('prefix'), get_option('libexecdir'))
+app_id = 'io.github.jspast.SteamSurveyExplorer'
+prefix = '/io/github/jspast/SteamSurveyExplorer'
 
 conf = configuration_data()
-conf.set('PYTHON', python.find_installation().full_path())
+conf.set('PYTHON', py_installation.full_path())
+conf.set('PYTHON_VERSION', py_installation.language_version())
+conf.set('APP_ID', app_id)
+conf.set('PREFIX', prefix)
 conf.set('VERSION', meson.project_version())
 conf.set('BIN', join_paths(get_option('prefix'), get_option('bindir'), meson.project_name()))
-conf.set('pkgdatadir', join_paths(get_option('prefix'), get_option('datadir'), meson.project_name()))
 conf.set('localedir', join_paths(get_option('prefix'), get_option('localedir')))
+conf.set('pkgdatadir', pkgdatadir)
+conf.set('libexecdir', libexecdir)
 
 subdir('src')
 subdir('data')
-subdir('po')
 
-if platform == 'windows'
-	gnome.post_install(
-	  glib_compile_schemas: true,
-	  gtk_update_icon_cache: true,
-	  update_desktop_database: false,
-	)
+if host_machine.system() != 'windows'
+  subdir('po')
+  
+  gnome.post_install(
+    glib_compile_schemas: true,
+    gtk_update_icon_cache: true,
+    update_desktop_database: true,
+  )
 else
-	gnome.post_install(
-	  glib_compile_schemas: true,
-	  gtk_update_icon_cache: true,
-	  update_desktop_database: true,
-	)
+  gnome.post_install(
+    glib_compile_schemas: true,
+    gtk_update_icon_cache: true,
+    update_desktop_database: false,
+  )
 endif
+

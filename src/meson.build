@@ -1,6 +1,4 @@
-pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
-moduledir = pkgdatadir / 'steam_survey_explorer'
-gnome = import('gnome')
+moduledir = python_dir / 'steam_survey_explorer'
 
 blueprints = custom_target('blueprints',
   input: files(
@@ -13,14 +11,16 @@ blueprints = custom_target('blueprints',
 )
 
 gnome.compile_resources('steam-survey-explorer',
-  'steam_survey_explorer.gresource.xml',
+  configure_file(
+    input: 'steam_survey_explorer.gresource.xml.in',
+    output: 'steam_survey_explorer.gresource.xml',
+    configuration: conf,
+  ),
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
   dependencies: blueprints,
 )
-
-python = import('python')
 
 configure_file(
   input: 'steam-survey-explorer.in',
@@ -28,7 +28,6 @@ configure_file(
   configuration: conf,
   install: true,
   install_dir: get_option('bindir'),
-  install_mode: 'rwxr-xr-x'
 )
 
 steam_survey_explorer_sources = [

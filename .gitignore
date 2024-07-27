@@ -1,3 +1,4 @@
 builddir
 /subprojects/blueprint-compiler
 /build-aux/Output
+/build-aux/python
