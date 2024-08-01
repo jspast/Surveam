@@ -17,7 +17,6 @@ class SteamSurveyExplorerApplication(Adw.Application):
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
-        self.create_action('open-csv', self.on_open_csv_action)
         self.create_action('category', self.on_category_action)
 
     def do_activate(self):
@@ -37,10 +36,6 @@ class SteamSurveyExplorerApplication(Adw.Application):
             '/io/github/jspast/SteamSurveyExplorer/ui/about.ui'
         ).get_object('about')
         about.present(self.props.active_window)
-
-    def on_open_csv_action(self, widget, _):
-        """Callback for the app.open-csv action."""
-        print('app.open-csv action activated')
 
     def on_category_action(self, *args):
         """Callback for the app.category action."""

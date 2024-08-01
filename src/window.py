@@ -19,8 +19,43 @@ class MainWindow(Adw.ApplicationWindow):
             self.windows_label3.set_property("visible", False)
             self.windows_graph.set_property("visible", True)
 
+    def open_file_dialog(self, action, _):
+        # Create a new file selection dialog, using the "open" mode
+        native = Gtk.FileDialog()
+        native.open(self, None, self.on_open_response)
+
+    def on_open_response(self, dialog, result):
+        file = dialog.open_finish(result)
+        # If the user selected a file...
+        if file is not None:
+            # ... open it
+            self.open_file(file)
+
+    def open_file(self, file):
+        file.load_contents_async(None, self.open_file_complete)
+
+    def open_file_complete(self, file, result):
+        contents = file.load_contents_finish(result)
+        if not contents[0]:
+            path = file.peek_path()
+            print(f"Unable to open {path}: {contents[1]}")
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        open_action = Gio.SimpleAction(name="open-csv")
+        open_action.connect("activate", self.open_file_dialog)
+        self.add_action(open_action)
+
+        self.settings = Gio.Settings(schema_id="io.github.jspast.SteamSurveyExplorer")
+        self.settings.bind("window-width", self, "default-width",
+                           Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind("window-height", self, "default-height",
+                           Gio.SettingsBindFlags.DEFAULT)
+        self.settings.bind("window-maximized", self, "maximized",
+                           Gio.SettingsBindFlags.DEFAULT)
+
+        # Exemplo para teste da interface:
 
         self.windows_version = Adw.ExpanderRow()
         self.windows_list.append(self.windows_version)
