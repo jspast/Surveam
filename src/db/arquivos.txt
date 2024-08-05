@@ -1,0 +1,29 @@
+Arquivos:
+
+- Categoria
+
+ID  | Nome          | Plataforma
+00    Linux Version   Linux
+01    System RAM      Linux
+...
+
+- Item
+
+ID  | Nome                  | IDCategoria
+00    "SteamOS Holo" 64 bit   00
+01    "Arch Linux" 64 bit     00
+...
+
+- Momento
+
+ID  | Mês | Ano
+10    06    24
+11    07    24
+...
+
+- Levantamento
+
+Popularidade  | Diferença | IDItem  | IDMomento
+41.17           -4.17       00        10
+40.97           -0.20       00        11
+...
