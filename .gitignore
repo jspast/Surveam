@@ -2,3 +2,5 @@ builddir
 /subprojects/blueprint-compiler
 /build-aux/Output
 /build-aux/python
+__pycache__
+.vscode

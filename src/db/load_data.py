@@ -20,10 +20,10 @@ class Moment(Structure):
                 ("year", c_uint8)]
 
 class Survey(Structure):
-    _fields_ = [("popularity", c_int16),
+    _fields_ = [("id_moment", c_uint16),
+                ("popularity", c_int16),
                 ("change", c_int16),
-                ("id_item", c_uint16),
-                ("id_moment", c_uint16)]
+                ("id_item", c_uint16)]
 
 # Converte string de formato "X.XXXX" ou "-X.XXXX" em inteiro
 def convert_percentage(string):
@@ -36,8 +36,8 @@ def convert_percentage(string):
 def load_data(file):
 
     # ToDo: carregar/criar arquivos do banco de dados
-    #db = Database()
-    #db.create_file("survey.db")
+    db = Database()
+    db.create_datafile("survey")
 
     # Verifica se há informação de plataforma no csv
     if file.readline().split(',')[1] == "platform":
@@ -50,9 +50,10 @@ def load_data(file):
     for row in csvreader:
         # row é uma lista de strings de cada linha do csv
 
-        # ToDo: decidir codificação de data
-        year = row[0][2:-6]
-        month = row[0][5:-3]
+        # Codificação de data
+        year = int(row[0][2:-6])
+        month = int(row[0][5:-3])
+        id_moment = year * 100 + month
         
         # Codifica plataforma como caracter
         if platform_data == 1:
@@ -75,13 +76,13 @@ def load_data(file):
         popularity = convert_percentage(row[4 + platform_data])
 
         # Teste básico:
-        print(month + ' ' + year + ' ' + plataform + ' ' + category + ' ' + item + ' ' + str(popularity/100) + '% ' + str(change/100) + '%')
+        print(str(id_moment) + ' ' + str(month) + ' ' + str(year) + ' ' + plataform + ' ' + category + ' ' + item + ' ' + str(popularity/100) + '% ' + str(change/100) + '%')
 
-        # ToDo: inserir registros no banco de dados
-        #survey_record = Survey(popularity=popularity, change=change, id_item=0, id_moment=0)
-        #db.insert_record("survey.db", survey_record)
+        # Inserir registros no banco de dados
+        survey_record = Survey(id_moment=id_moment, popularity=popularity, change=change, id_item=0)
+        db.insert_record("survey", survey_record, survey_record.id_moment, Survey.id_moment, [])
 
-    #db.close_file("survey.db")
+    db.close_datafile("survey")
 
 if __name__ == "__main__":
 
