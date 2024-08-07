@@ -38,12 +38,19 @@ def load_data(file):
     # ToDo: carregar/criar arquivos do banco de dados
     db = Database()
     db.create_datafile("survey")
+    db.create_datafile("category")
+    db.create_datafile("item")
+    db.create_datafile("moment")
 
     # Verifica se há informação de plataforma no csv
     if file.readline().split(',')[1] == "platform":
         platform_data = 1
     else:
         platform_data = 0
+    
+    # Inicializa os ids da Categoria e Item com zero
+    id_category = 0
+    id_item = 0 
 
     # Processa linhas do csv
     csvreader = csv.reader(file, delimiter=',')
@@ -68,8 +75,10 @@ def load_data(file):
 
         # ToDo: processar strings de categoria
         category = row[1 + platform_data]
+        
 
         item = row[2 + platform_data]
+        
 
         # Codifica porcentagens como inteiros
         change = convert_percentage(row[3 + platform_data])
@@ -79,10 +88,27 @@ def load_data(file):
         print(str(id_moment) + ' ' + str(month) + ' ' + str(year) + ' ' + plataform + ' ' + category + ' ' + item + ' ' + str(popularity/100) + '% ' + str(change/100) + '%')
 
         # Inserir registros no banco de dados
-        survey_record = Survey(id_moment=id_moment, popularity=popularity, change=change, id_item=0)
+        survey_record = Survey(id_moment=id_moment, popularity=popularity, change=change, id_item=id_item)
         db.insert_record("survey", survey_record, survey_record.id_moment, Survey.id_moment, [])
 
+        category_record = Category(id=id_category, name= category,plataform = plataform)
+        db.insert_record("category", category_record, category_record.id,Category.id,[])
+
+        item_record = Item(id=id_item, name = item, id_category= id_category)
+        db.insert_record("item", item_record, item_record.id, Item.id, [])
+
+        moment_record = Moment(id = id_moment,month = month,year = year)
+        db.insert_record("moment", moment_record, moment_record.id, Moment.id,[])
+
+
+        id_category +=1
+        id_item +=1
+
     db.close_datafile("survey")
+    db.close_datafile("category")
+    db.close_datafile("item")
+    db.close_datafile("moment")
+
 
 if __name__ == "__main__":
 
