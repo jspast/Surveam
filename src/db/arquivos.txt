@@ -2,12 +2,16 @@ Arquivos:
 
 - Categoria
 
+ID = hash
+
 ID  | Nome          | Plataforma
 00    Linux Version   Linux
 01    System RAM      Linux
 ...
 
 - Item
+
+ID = hash
 
 ID  | Nome                  | IDCategoria
 00    "SteamOS Holo" 64 bit   00
@@ -17,16 +21,19 @@ ID  | Nome                  | IDCategoria
 - Momento
 
 ID = ano * 100 + mes
-	      2407
+(Ex: 2407)
 
-ID  	|	Mês | Ano
-2406		06    24
+ID    | Mês | Ano
+2406    06    24
 2407    07    24
 ...
 
 - Levantamento
 
-IDMomento |	Popularidade  | Diferença | IDItem
-10			    41.17           -4.17       00        
-11			    40.97           -0.20       00        
+ID = IDMomento * 100000 + IDItem
+(Ex: 1100000)
+          
+ID    | Popularidade  | Diferença | IDMomento | IDItem
+1000    41.17           -4.17       10          00
+1100    40.97           -0.20       11          00
 ...

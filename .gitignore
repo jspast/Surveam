@@ -4,3 +4,5 @@ builddir
 /build-aux/python
 __pycache__
 .vscode
+*.dat
+*.idx
