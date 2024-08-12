@@ -30,10 +30,10 @@ ID    | Mês | Ano
 
 - Levantamento
 
-ID = IDMomento * 100000 + IDItem
-(Ex: 1100000)
+ID = IDMomento * 10000000000 + IDItem
+(Ex: 24070000000000)
           
 ID    | Popularidade  | Diferença | IDMomento | IDItem
-1000    41.17           -4.17       10          00
-1100    40.97           -0.20       11          00
+1000    41.17           -4.17       2406        00
+1100    40.97           -0.20       2407        00
 ...

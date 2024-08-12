@@ -7,26 +7,30 @@ from ctypes import *
 from database import Database
 
 class Category(Structure):
-    _fields_ = [("id", c_uint8),
-                ("name", c_char * 62),
-                ("platform", c_char)]
-
-class Item(Structure):
     _fields_ = [("id", c_uint16),
                 ("name", c_char * 61),
-                ("id_category", c_uint8)]
+                ("platform", c_char)]
+    _pack_ = 1
+
+class Item(Structure):
+    _fields_ = [("id", c_uint32),
+                ("name", c_char * 58),
+                ("id_category", c_uint16)]
+    _pack_ = 1
 
 class Moment(Structure):
     _fields_ = [("id", c_uint16),
                 ("month", c_uint8),
                 ("year", c_uint8)]
+    _pack_ = 1
 
 class Survey(Structure):
-    _fields_ = [("id", c_uint32),
+    _fields_ = [("id", c_uint64),
                 ("popularity", c_int16),
                 ("change", c_int16),
                 ("id_moment", c_uint16),
-                ("id_item", c_uint16)]
+                ("id_item", c_uint32)]
+    _pack_ = 1
 
 # Converte string de formato "X.XXXX" ou "-X.XXXX" em inteiro
 def convert_percentage(string):
@@ -60,7 +64,7 @@ def load_data(file):
         year = int(row[0][2:-6])
         month = int(row[0][5:-3])
         id_moment = year * 100 + month
-        
+
         # Codifica plataforma como caracter
         if platform_data == 1:
             platform = row[1][0]
@@ -77,7 +81,7 @@ def load_data(file):
         # Processar strings de categoria (Remove texto entre parênteses)
         category_tmp = row[1 + platform_data].split('(')
         category = category_tmp[0].strip().encode()
-        
+
         item = row[2 + platform_data].encode()
 
         # Codifica porcentagens como inteiros
@@ -85,13 +89,13 @@ def load_data(file):
         popularity = convert_percentage(row[4 + platform_data])
 
         # Calcula id da categoria
-        id_category = blake2b(digest_size=1)
+        id_category = blake2b(digest_size=2)
         id_category.update(category)
         id_category.update(platform)
         id_category = id_category.digest()
 
         # Calcula id do item
-        id_item = blake2b(digest_size=2)
+        id_item = blake2b(digest_size=4)
         id_item.update(item)
         id_item.update(id_category)
 
@@ -99,7 +103,7 @@ def load_data(file):
         id_item = int.from_bytes(id_item.digest())
 
         # Calcula id do levantamento
-        id_survey = id_moment * 100000 + id_item
+        id_survey = id_moment * 10000000000 + id_item
 
         # Teste básico:
         print(str(id_moment) + ' ' + str(month) + ' ' + str(year) + ' ' + str(platform) + ' ' + category.decode() + ' ' + item.decode() + ' ' + str(popularity/100) + '% ' + str(change/100) + '%')
@@ -141,3 +145,4 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print("Arquivo csv não encontrado")
         sys.exit()
+
