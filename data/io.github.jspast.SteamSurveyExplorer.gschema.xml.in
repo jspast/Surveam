@@ -10,6 +10,9 @@
     <key name="window-maximized" type="b">
       <default>false</default>
     </key>
+	  <key name="platform-page" type="s">
+      <default>"page_combined"</default>
+    </key>
 	  <key name="category-window-width" type="i">
       <default>600</default>
     </key>

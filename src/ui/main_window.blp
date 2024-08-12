@@ -54,7 +54,7 @@ template $MainWindow : $AdwApplicationWindow {
           height-request: 10;
 
           Adw.Breakpoint {
-            condition ("max-width: 500sp")
+            condition ("max-width: 400sp")
 
             setters {
               search_bar_box.orientation: vertical;
@@ -71,50 +71,8 @@ template $MainWindow : $AdwApplicationWindow {
               placeholder-text: _("Search for items");
             }
 
-            Gtk.Box date_selection {
-              spacing: 5;
+            Gtk.DropDown date_dropdown {
               hexpand: true;
-
-              Gtk.Box year_selection {
-                spacing: 5;
-                hexpand: true;
-                halign: end;
-
-                Gtk.Button year_prev {
-                  icon-name: "pan-start-symbolic";
-                  styles ["circular"]
-                }
-
-                Gtk.DropDown year_dropdown {
-
-                }
-
-                Gtk.Button year_next {
-                  icon-name: "pan-end-symbolic";
-                  styles ["circular"]
-                }
-              }
-
-              Gtk.Box month_selection {
-                spacing: 5;
-                hexpand: true;
-                halign: start;
-
-                Gtk.Button month_prev {
-                  icon-name: "pan-start-symbolic";
-                  styles ["circular"]
-                }
-
-                Gtk.DropDown month_dropdown {
-                  width-request: 90;
-
-                }
-
-                Gtk.Button month_next {
-                  icon-name: "pan-end-symbolic";
-                  styles ["circular"]
-                }
-              }
             }
           }
         }
@@ -130,7 +88,14 @@ template $MainWindow : $AdwApplicationWindow {
 
         child: Gtk.ScrolledWindow {
           Adw.Clamp {
-
+            Gtk.Box combined_list {
+              orientation: vertical;
+              margin-top: 24;
+              margin-bottom: 24;
+              margin-start: 12;
+              margin-end: 12;
+              spacing: 24;
+            }
           }
         };
       }
@@ -143,7 +108,14 @@ template $MainWindow : $AdwApplicationWindow {
 
         child: Gtk.ScrolledWindow {
           Adw.Clamp {
-
+            Gtk.Box windows_list {
+              orientation: vertical;
+              margin-top: 24;
+              margin-bottom: 24;
+              margin-start: 12;
+              margin-end: 12;
+              spacing: 24;
+            }
           }
         };
       }
@@ -156,19 +128,13 @@ template $MainWindow : $AdwApplicationWindow {
 
         child: Gtk.ScrolledWindow {
           Adw.Clamp {
-
-            Gtk.Box {
+            Gtk.Box linux_list {
               orientation: vertical;
               margin-top: 24;
               margin-bottom: 24;
               margin-start: 12;
               margin-end: 12;
               spacing: 24;
-
-              Gtk.ListBox windows_list {
-                selection-mode: none;
-                styles ["boxed-list"]
-              }
             }
           }
         };
@@ -182,7 +148,14 @@ template $MainWindow : $AdwApplicationWindow {
 
         child: Gtk.ScrolledWindow {
           Adw.Clamp {
-
+            Gtk.Box mac_list {
+              orientation: vertical;
+              margin-top: 24;
+              margin-bottom: 24;
+              margin-start: 12;
+              margin-end: 12;
+              spacing: 24;
+            }
           }
         };
       }

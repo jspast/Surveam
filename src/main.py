@@ -7,7 +7,6 @@ gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, Adw
 
 from .window import MainWindow
-from .category_window import CategoryWindow
 
 class SteamSurveyExplorerApplication(Adw.Application):
     """The main application singleton class."""
@@ -17,7 +16,6 @@ class SteamSurveyExplorerApplication(Adw.Application):
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
-        self.create_action('category', self.on_category_action)
 
     def do_activate(self):
         """Called when the application is activated.
@@ -33,14 +31,9 @@ class SteamSurveyExplorerApplication(Adw.Application):
     def on_about_action(self, *args):
         """Callback for the app.about action."""
         about = Gtk.Builder.new_from_resource(
-            '/io/github/jspast/SteamSurveyExplorer/ui/about.ui'
+            '/io/github/jspast/SteamSurveyExplorer/ui/about_dialog.ui'
         ).get_object('about')
         about.present(self.props.active_window)
-
-    def on_category_action(self, *args):
-        """Callback for the app.category action."""
-        category_win = CategoryWindow()
-        category_win.present()
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
@@ -61,3 +54,4 @@ def main(version):
     """The application's entry point."""
     app = SteamSurveyExplorerApplication()
     return app.run(sys.argv)
+

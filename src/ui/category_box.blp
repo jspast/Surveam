@@ -1,0 +1,49 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $Category : $GtkListBox {
+  selection-mode: none;
+  styles ["boxed-list"]
+
+  Adw.ExpanderRow expander_row {
+    title-lines: 1;
+
+    [suffix]
+    Gtk.Button category_button {
+      icon-name: "graph-symbolic";
+      has-frame: false;
+      valign: center;
+      clicked => $on_category_action();
+    }
+
+    [suffix]
+    Gtk.Label item_percentage_label {
+      width-chars: 7;
+      halign: end;
+    }
+
+    [suffix]
+    Gtk.Label item_name_label {
+      ellipsize: end;
+    }
+
+    Gtk.Frame {
+      Gtk.ColumnView column_view {
+        show-row-separators: true;
+        styles ["data-table"]
+        model: Gtk.NoSelection {};
+
+        Gtk.ColumnViewColumn name_column {
+          title: "Name";
+          expand: true;
+        }
+        Gtk.ColumnViewColumn percentage_column {
+          title: "Percentage";
+        }
+        Gtk.ColumnViewColumn change_column {
+          title: "Change";
+        }
+      }
+    }
+  }
+}

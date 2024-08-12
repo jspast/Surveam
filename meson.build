@@ -57,7 +57,7 @@ subdir('data')
 
 if host_machine.system() != 'windows'
   subdir('po')
-  
+
   gnome.post_install(
     glib_compile_schemas: true,
     gtk_update_icon_cache: true,

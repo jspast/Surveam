@@ -1,3 +1,24 @@
+gnome.compile_resources('steam-survey-explorer',
+  configure_file(
+    input: 'steam_survey_explorer.gresource.xml.in',
+    output: 'steam_survey_explorer.gresource.xml',
+    configuration: conf,
+  ),
+  gresource_bundle: true,
+  install: true,
+  install_dir: pkgdatadir,
+  dependencies: blueprints,
+)
+
+configure_file(
+  input: 'steam-survey-explorer.in',
+  output: 'steam-survey-explorer',
+  configuration: conf,
+  install: true,
+  install_dir: get_option('bindir'),
+  install_mode: 'rwxr-xr-x'
+)
+
 if host_machine.system() == 'windows'
   desktop_file = configure_file(
     input: app_id + '.desktop.in',
