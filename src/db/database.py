@@ -1,5 +1,5 @@
 import os
-import patricia
+from .patricia import *
 from ctypes import *
 
 datafile_ext = ".dat"
@@ -25,15 +25,19 @@ class Database:
             self.indexfiles[filename] = open(filename + indexfile_ext, 'wb+')
 
     # Busca binária por id único em arquivo sequencial, retorna posição do id no arquivo ou posição onde seria inserido
-    def search_id(self, filename, id, id_field, record_size):
-        self.datafiles[filename].seek(0, 2)
-        end = self.datafiles[filename].tell() // record_size
-        start = 0
+    def search_id(self, filename, id, id_field, record_size, start, end):
+
+        if end == -1:
+            self.datafiles[filename].seek(0, 2)
+            end = self.datafiles[filename].tell() // record_size
+
+        if start == -1:
+            start = 0
 
         while start <= end:
             middle = start + (end - start) // 2
 
-            self.datafiles[filename].seek(id_field.offset + middle * record_size, 0)
+            self.datafiles[filename].seek(id_field.offset + (middle * record_size), 0)
             middle_value = int.from_bytes(self.datafiles[filename].read(id_field.size)[:id_field.size], byteorder='little', signed=False)
 
             if middle_value < id:
@@ -42,6 +46,46 @@ class Database:
                 end = middle - 1
 
         return start
+
+    # Dado um atributo ordenado, um valor e uma posição no arquivo que contém atributo com esse valor, retorna a posição do primeiro atributo com esse valor
+    def first(self, filename, value, field, pos, record_size):
+
+        if pos == 0:
+            return pos
+
+        self.datafiles[filename].seek(((pos - 1) * record_size) + field.offset, 0)
+
+        pos_value = int.from_bytes(self.datafiles[filename].read(field.size)[:field.size], byteorder='little', signed=False)
+
+        while pos != 0 and pos_value == value:
+
+            pos = pos - 1
+
+            self.datafiles[filename].seek(-record_size - field.size, 1)
+
+            pos_value = int.from_bytes(self.datafiles[filename].read(field.size)[:field.size], byteorder='little', signed=False)
+
+        return pos
+
+    # Dado um atributo ordenado, um valor e uma posição no arquivo que contém atributo com esse valor, retorna a posição do último atributo com esse valor
+    def last(self, filename, value, field, pos, record_size):
+
+        self.datafiles[filename].seek(0, 2)
+        end = self.datafiles[filename].tell() // record_size
+
+        self.datafiles[filename].seek(((pos + 1) * record_size) + field.offset, 0)
+
+        pos_value = int.from_bytes(self.datafiles[filename].read(field.size)[:field.size], byteorder='little', signed=False)
+
+        while pos <= end and pos_value == value:
+
+            pos = pos + 1
+
+            self.datafiles[filename].seek(record_size - field.size, 1)
+
+            pos_value = int.from_bytes(self.datafiles[filename].read(field.size)[:field.size], byteorder='little', signed=False)
+
+        return pos
 
     # Dado um registro, devolve valor inteiro do campo field
     def get_record_field_int_value(self, record, field, signed):
@@ -76,9 +120,7 @@ class Database:
             return self.datafiles[filename].read(record_size)
 
     # Dada uma lista de tuplas (atributo, valor), devolve uma lista com todos os registros que tem atributos iguais
-    def filter_records(self, filename, list, record_size):
-
-        self.datafiles[filename].seek(0, 0)
+    def filter_records(self, filename, list, record_size, start, num):
 
         data = []
         field_sizes = []
@@ -100,9 +142,16 @@ class Database:
             field_sizes.append(field_size)
             field_values.append(value)
 
+        if start != -1:
+            self.datafiles[filename].seek(record_size * start, 0)
+        else:
+            self.datafiles[filename].seek(0, 0)
+
         record = self.datafiles[filename].read(record_size)
 
-        while record != b'':
+        while record != b'' and num != 0:
+
+            num = num - 1
 
             ok = True
 
@@ -132,7 +181,7 @@ class Database:
             self.datafiles[filename].seek(id_field.offset - record_size, 2)
 
             return int.from_bytes(self.datafiles[filename].read(id_field.size)[:id_field.size], byteorder='little', signed=False)
-        
+
         # Senão, retorna -1
         else:
             return -1
@@ -152,16 +201,16 @@ class Database:
             ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
 
-            if (filename== "category"):
+            if (filename == "category"):
                 chave= patricia.string_to_binary(record.name + record.platform)
                 patricia.insere_nodo(patricia.raiz,chave)
                 patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
-            
+
             elif filename == "item":
                 chave = patricia.string_to_binary(record.name + record.id_category)
                 patricia.insere_nodo(patricia.raiz,chave)
                 patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
-            
+
         # Senão, faz busca binária para achar posição a inserir e insere após mover registros sequentes
         else:
             num = self.search_id(filename, record_sort_value, sort_field, sizeof(record))
@@ -178,16 +227,16 @@ class Database:
             ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
 
-            if (filename== "category"):
+            if (filename == "category"):
                 chave= patricia.string_to_binary(record.name + record.platform)
                 patricia.insere_nodo(patricia.raiz,chave)
                 patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
-            
+
             elif filename == "item":
                 chave = patricia.string_to_binary(record.name + record.id_category)
                 patricia.insere_nodo(patricia.raiz,chave)
                 patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)        
-        
+
     # Fecha arquivo de dados
     def close_datafile(self, filename):
         self.datafiles[filename].close()

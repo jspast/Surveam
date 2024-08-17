@@ -11,7 +11,7 @@
       <default>false</default>
     </key>
 	  <key name="platform-page" type="s">
-      <default>"page_combined"</default>
+      <default>"Combined"</default>
     </key>
 	  <key name="category-window-width" type="i">
       <default>600</default>
@@ -23,7 +23,7 @@
       <default>false</default>
     </key>
 	  <key name="category-chart-page" type="s">
-      <default>"page_stats"</default>
+      <default>"Stats"</default>
     </key>
 	</schema>
 </schemalist>

@@ -5,7 +5,7 @@ from hashlib import blake2b
 from ctypes import *
 
 #Para executar sem a interface, tirar o ponto (!?)
-from database import Database
+from .database import Database
 
 class Category(Structure):
     _fields_ = [("id", c_uint16),
@@ -111,7 +111,7 @@ def load_data(db, file):
         id_survey = id_moment * 10000000000 + id_item
 
         # Teste básico:
-        print(str(id_moment) + ' ' + str(month) + ' ' + str(year) + ' ' + str(platform) + ' ' + category.decode() + ' ' + item.decode() + ' ' + str(popularity/100) + '% ' + str(change/100) + '%')
+        #print(str(id_moment) + ' ' + str(month) + ' ' + str(year) + ' ' + str(platform) + ' ' + category.decode() + ' ' + item.decode() + ' ' + str(popularity/100) + '% ' + str(change/100) + '%')
 
         # Inserir registros no banco de dados
         if db.id_exists("survey", id_survey, Survey.id, sizeof(Survey)) == False:
@@ -119,11 +119,11 @@ def load_data(db, file):
             db.insert_record("survey", survey_record, survey_record.id, Survey.id, [])
 
         if db.id_exists("category", id_category, Category.id, sizeof(Category)) == False:
-            category_record = Category(id=id_category, name=category, platform=platform)
+            category_record = Category(id=id_category, name=category[:Category.name.size], platform=platform)
             db.insert_record("category", category_record, category_record.id, Category.id, [])
 
         if db.id_exists("item", id_item, Item.id, sizeof(Item)) == False:
-            item_record = Item(id=id_item, name=item, id_category=id_category)
+            item_record = Item(id=id_item, name=item[:Item.name.size], id_category=id_category)
             db.insert_record("item", item_record, item_record.id, Item.id, [])
 
         if db.id_exists("moment", id_moment, Moment.id, sizeof(Moment)) == False:
@@ -156,18 +156,18 @@ def get_moments(db):
 
     while record != -1:
 
-        list.append(Database.get_record_field_int_value(record, Moment.id))
+        list.append(db.get_record_field_int_value(record, Moment.id, False))
         num = num + 1
         record = db.get_record("moment", num, sizeof(Moment))
 
-    return list
+    return sorted(list)
 
 # Dados uma plataforma e um momento, devolve lista de categorias (que são tuplas(nome, lista de itens))
 def get_categories(db, platform, id_moment):
 
     category_filter = []
     category_filter.append((Category.platform, platform))
-    categories = db.filter_records("category", category_filter, sizeof(Category))
+    categories = db.filter_records("category", category_filter, sizeof(Category), -1, -1)
 
     data = []
 
@@ -179,7 +179,7 @@ def get_categories(db, platform, id_moment):
         item_filter = []
         item_filter.append((Item.id_category, id_category))
 
-        items = db.filter_records("item", item_filter, sizeof(Item))
+        items = db.filter_records("item", item_filter, sizeof(Item), -1, -1)
 
         items_list = []
 
@@ -189,18 +189,24 @@ def get_categories(db, platform, id_moment):
 
             survey_filter = []
             survey_filter.append((Survey.id_item, id))
-            survey_filter.append((Survey.id_moment, id_moment))
 
-            survey_data = db.filter_records("survey", survey_filter, sizeof(Survey))
+            moment_pos = db.search_id("survey", id_moment, Survey.id_moment, sizeof(Survey), -1, -1)
+            first_moment = db.first("survey", id_moment, Survey.id_moment, moment_pos, sizeof(Survey))
+            last_moment = db.last("survey", id_moment, Survey.id_moment, moment_pos, sizeof(Survey))
 
-            name = db.get_record_field_str_value(item, Item.name)
-            popularity = decode_popularity(db.get_record_field_int_value(survey_data[0], Survey.popularity, True))
-            change = decode_change(db.get_record_field_int_value(survey_data[0], Survey.change, True))
+            survey_record_pos = db.search_id("survey", id, Survey.id_item, sizeof(Survey), first_moment, last_moment)
+            survey_record = db.get_record("survey", survey_record_pos, sizeof(Survey))
 
-            items_list.append((name, popularity, change))
+            if db.get_record_field_int_value(survey_record, Survey.id_item, False) == id:
+                name = db.get_record_field_str_value(item, Item.name)
+                popularity = decode_popularity(db.get_record_field_int_value(survey_record, Survey.popularity, True))
+                change = decode_change(db.get_record_field_int_value(survey_record, Survey.change, True))
 
-        items_list.sort(key=lambda tup: float(tup[1][:-1]), reverse=True)
-        data.append((category_name, items_list))
+                items_list.append((name, popularity, change))
+
+        if items_list != []:
+            items_list.sort(key=lambda tup: float(tup[1][:-1]), reverse=True)
+            data.append((category_name, items_list))
 
     return data
 

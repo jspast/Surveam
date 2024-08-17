@@ -18,10 +18,7 @@ steam_survey_explorer_sources = [
   'category_window.py',
   'db/database.py',
   'db/load_data.py',
-  'db/category.dat',
-  'db/item.dat',
-  'db/moment.dat',
-  'db/survey.dat'
+  'db/patricia.py',
 ]
 
 install_data(steam_survey_explorer_sources, install_dir: moduledir)
