@@ -4,7 +4,8 @@ from hashlib import blake2b
 
 from ctypes import *
 
-from database import Database
+#Para executar sem a interface, tirar o ponto (!?)
+from .database import Database
 
 class Category(Structure):
     _fields_ = [("id", c_uint16),
@@ -33,21 +34,25 @@ class Survey(Structure):
     _pack_ = 1
 
 # Converte string de formato "X.XXXX" ou "-X.XXXX" em inteiro
-def convert_percentage(string):
+def code_percentage(string):
     if string[0] == '-':
         return int(string[:2] + string[3:])
     else:
         return int(string[:1] + string[2:])
 
-# Carrega dados do csv e insere no banco de dados
-def load_data(file):
+# Converte inteiro em string de popularidade
+def decode_popularity(int):
+    return str("%.2f" % (int / 100)) + '%'
 
-    # ToDo: carregar/criar arquivos do banco de dados
-    db = Database()
-    db.create_datafile("survey")
-    db.create_datafile("category")
-    db.create_datafile("item")
-    db.create_datafile("moment")
+# Converte inteiro em string de diferença
+def decode_change(int):
+    if int <= 0:
+        return decode_popularity(int)
+    else:
+        return '+' + decode_popularity(int)
+
+# Carrega dados do csv e insere no banco de dados
+def load_data(db, file):
 
     # Verifica se há informação de plataforma no csv
     if file.readline().split(',')[1] == "platform":
@@ -85,8 +90,8 @@ def load_data(file):
         item = row[2 + platform_data].encode()
 
         # Codifica porcentagens como inteiros
-        change = convert_percentage(row[3 + platform_data])
-        popularity = convert_percentage(row[4 + platform_data])
+        change = code_percentage(row[3 + platform_data])
+        popularity = code_percentage(row[4 + platform_data])
 
         # Calcula id da categoria
         id_category = blake2b(digest_size=2)
@@ -125,24 +130,99 @@ def load_data(file):
             moment_record = Moment(id=id_moment, month=month, year=year)
             db.insert_record("moment", moment_record, moment_record.id, Moment.id, [])
 
+
+# Carrega/cria arquivos do banco de dados
+def open_database():
+    db = Database()
+    db.open_datafile("survey")
+    db.open_datafile("category")
+    db.open_datafile("item")
+    db.open_datafile("moment")
+    return db
+
+def close_database(db):
     db.close_datafile("survey")
     db.close_datafile("category")
     db.close_datafile("item")
     db.close_datafile("moment")
 
+# Devolve lista com todos os momentos no banco de dados
+def get_moments(db):
+
+    list = []
+    num = 0
+
+    record = db.get_record("moment", num, sizeof(Moment))
+
+    while record != -1:
+
+        list.append(Database.get_record_field_int_value(record, Moment.id))
+        num = num + 1
+        record = db.get_record("moment", num, sizeof(Moment))
+
+    return list
+
+# Dados uma plataforma e um momento, devolve lista de categorias (que são tuplas(nome, lista de itens))
+def get_categories(db, platform, id_moment):
+
+    category_filter = []
+    category_filter.append((Category.platform, platform))
+    categories = db.filter_records("category", category_filter, sizeof(Category))
+
+    data = []
+
+    for category in categories:
+
+        id_category = db.get_record_field_int_value(category, Category.id, False)
+        category_name = db.get_record_field_str_value(category, Category.name)
+
+        item_filter = []
+        item_filter.append((Item.id_category, id_category))
+
+        items = db.filter_records("item", item_filter, sizeof(Item))
+
+        items_list = []
+
+        for item in items:
+
+            id = db.get_record_field_int_value(item, Item.id, False)
+
+            survey_filter = []
+            survey_filter.append((Survey.id_item, id))
+            survey_filter.append((Survey.id_moment, id_moment))
+
+            survey_data = db.filter_records("survey", survey_filter, sizeof(Survey))
+
+            name = db.get_record_field_str_value(item, Item.name)
+            popularity = decode_popularity(db.get_record_field_int_value(survey_data[0], Survey.popularity, True))
+            change = decode_change(db.get_record_field_int_value(survey_data[0], Survey.change, True))
+
+            items_list.append((name, popularity, change))
+
+        items_list.sort(key=lambda tup: float(tup[1][:-1]), reverse=True)
+        data.append((category_name, items_list))
+
+    return data
+
 
 if __name__ == "__main__":
 
+    # Carrega dados de arquivo csv
+    if len(sys.argv) > 2 and sys.argv[1] == '-i':
+        try:
+            with open(sys.argv[2], newline='') as csvfile:
+                db = open_database()
+                load_data(db, csvfile)
+
+        except FileNotFoundError:
+            print("Arquivo csv não encontrado")
+            sys.exit()
+
+    if len(sys.argv) > 1 and sys.argv[1] == '-t':
+        db = open_database()
+        print(get_categories(db, 'c', 2407))
+
     # Imprime mensagem de ajuda
-    if len(sys.argv) == 1 or sys.argv[1][0] == '-':
-        print("Use:", sys.argv[0], "arquivo")
+    else:
+        print("Para carregar dados de arquivo csv, use:\n", sys.argv[0], "-i csv")
         sys.exit()
-
-    try:
-        with open(sys.argv[1], newline='') as csvfile:
-            load_data(csvfile)
-
-    except FileNotFoundError:
-        print("Arquivo csv não encontrado")
-        sys.exit()
-

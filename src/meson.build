@@ -16,6 +16,12 @@ steam_survey_explorer_sources = [
   'main.py',
   'window.py',
   'category_window.py',
+  'db/database.py',
+  'db/load_data.py',
+  'db/category.dat',
+  'db/item.dat',
+  'db/moment.dat',
+  'db/survey.dat'
 ]
 
 install_data(steam_survey_explorer_sources, install_dir: moduledir)

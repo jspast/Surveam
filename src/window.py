@@ -2,6 +2,10 @@ from gi.repository import Adw, Gio, Gtk, GObject
 
 from .category_window import CategoryWindow
 
+from .load_data import *
+
+from io import StringIO
+
 class Item(GObject.Object):
     def __init__(self, name, percentage, change):
         super().__init__()
@@ -69,11 +73,13 @@ class CategoryBox(Gtk.ListBox):
         def _on_factory_setup_percentage(_factory, list_item):
             label = Gtk.Label(halign=Gtk.Align.END)
             label.set_property("ellipsize", "end")
+            label.set_property("css_classes", ["monospace"])
             label.set_selectable(True)
             list_item.set_child(label)
 
         def _on_factory_setup_change(_factory, list_item):
             label = Gtk.Label(halign=Gtk.Align.END)
+            label.set_property("css_classes", ["monospace"])
             label.set_selectable(True)
             list_item.set_child(label)
 
@@ -85,9 +91,9 @@ class CategoryBox(Gtk.ListBox):
 
             if what == "change":
                 if label[0] == "-":
-                    label_widget.set_property("css_classes", ["error"])
+                    label_widget.set_property("css_classes", ["error", "monospace"])
                 elif label[0] == "+":
-                    label_widget.set_property("css_classes", ["success"])
+                    label_widget.set_property("css_classes", ["success", "monospace"])
 
         self.name_factory.connect("setup", _on_factory_setup_name)
         self.percentage_factory.connect("setup", _on_factory_setup_percentage)
@@ -120,6 +126,8 @@ class MainWindow(Adw.ApplicationWindow):
     search_bar_box = Gtk.Template.Child()
     windows_list = Gtk.Template.Child()
     combined_list = Gtk.Template.Child()
+    linux_list = Gtk.Template.Child()
+    mac_list = Gtk.Template.Child()
     stack = Gtk.Template.Child()
 
     def open_file_dialog(self, action, _):
@@ -143,6 +151,13 @@ class MainWindow(Adw.ApplicationWindow):
             path = file.peek_path()
             print(f"Unable to open {path}: {contents[1]}")
 
+        csv_string = contents[1].decode('utf-8')
+        csv_file_like = StringIO(csv_string)
+
+        db = open_database()
+        load_data(db, csv_file_like)
+        close_database(db)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -161,15 +176,29 @@ class MainWindow(Adw.ApplicationWindow):
                            Gio.SettingsBindFlags.DEFAULT)
 
         # Exemplo para teste da interface:
+        db = open_database()
 
-        item1 = [("SteamOS Holo", "42.33%", "-1.89%")]
-        item2 = [('"Arch Linux" 64 bit', "8.24%", "+0.58%")]
+        combined_categories = get_categories(db, 'c', 2407)
+        for category in combined_categories:
+            box = CategoryBox(category[0], category[1][0][0], category[1][0][1])
+            self.combined_list.append(box)
+            box.populate_column_view(category[1])
 
-        for i in range(3):
-            test = CategoryBox("Linux Version", "SteamOS Holo", "42.33%")
-            self.combined_list.append(test)
-            test.populate_column_view(item1)
-            test.populate_column_view(item2)
+        windows_categories = get_categories(db, 'w', 2407)
+        for category in windows_categories:
+            box = CategoryBox(category[0], category[1][0][0], category[1][0][1])
+            self.windows_list.append(box)
+            box.populate_column_view(category[1])
 
-        self.combined_list.append(CategoryBox("System RAM", "16 GB", "42.33%"))
+        linux_categories = get_categories(db, 'l', 2407)
+        for category in linux_categories:
+            box = CategoryBox(category[0], category[1][0][0], category[1][0][1])
+            self.linux_list.append(box)
+            box.populate_column_view(category[1])
+
+        mac_categories = get_categories(db, 'm', 2407)
+        for category in mac_categories:
+            box = CategoryBox(category[0], category[1][0][0], category[1][0][1])
+            self.mac_list.append(box)
+            box.populate_column_view(category[1])
 
