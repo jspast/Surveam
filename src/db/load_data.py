@@ -5,7 +5,7 @@ from hashlib import blake2b
 from ctypes import *
 
 #Para executar sem a interface, tirar o ponto (!?)
-from .database import Database
+from database import Database
 
 class Category(Structure):
     _fields_ = [("id", c_uint16),

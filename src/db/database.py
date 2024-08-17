@@ -1,5 +1,5 @@
 import os
-
+import patricia
 from ctypes import *
 
 datafile_ext = ".dat"
@@ -149,8 +149,19 @@ class Database:
         # Se o registro a ser inserido for maior que o último, insere no final do arquivo
         if record_sort_value >= self.last_id(filename, sort_field, sizeof(record)):
             self.datafiles[filename].seek(0, 2)
+            ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
 
+            if (filename== "category"):
+                chave= patricia.string_to_binary(record.name + record.platform)
+                patricia.insere_nodo(patricia.raiz,chave)
+                patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
+            
+            elif filename == "item":
+                chave = patricia.string_to_binary(record.name + record.id_category)
+                patricia.insere_nodo(patricia.raiz,chave)
+                patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
+            
         # Senão, faz busca binária para achar posição a inserir e insere após mover registros sequentes
         else:
             num = self.search_id(filename, record_sort_value, sort_field, sizeof(record))
@@ -164,7 +175,18 @@ class Database:
             self.datafiles[filename].seek(pos + sizeof(record), 0)
             self.datafiles[filename].write(data)
             self.datafiles[filename].seek(pos, 0)
+            ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
+
+            if (filename== "category"):
+                chave= patricia.string_to_binary(record.name + record.platform)
+                patricia.insere_nodo(patricia.raiz,chave)
+                patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
+            
+            elif filename == "item":
+                chave = patricia.string_to_binary(record.name + record.id_category)
+                patricia.insere_nodo(patricia.raiz,chave)
+                patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)        
         
     # Fecha arquivo de dados
     def close_datafile(self, filename):
