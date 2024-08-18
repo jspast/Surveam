@@ -17,7 +17,7 @@ def binary_to_string(binary_str):
     string = ''.join([chr(int(char, 2)) for char in chars])
     return string
 
-# Pega a raiz da PATRICIA  e um indice (chave) e devolve as folhas do nodo com esse indice (array)
+# Pega a raiz da PATRICIA  e um indice (chave) e devolve a posição da chave no arquivo principal
 def get_leaves_by_index(nodo, target_index):
     if nodo.index == target_index:
         return collect_leaves(nodo)
@@ -26,7 +26,7 @@ def get_leaves_by_index(nodo, target_index):
         if isinstance(filho, Nodo):
             result = get_leaves_by_index(filho, target_index)
             if result is not None:
-                return result
+                return result[0]
     return None
 
 # Auxiliar da get_leaves_by_index
@@ -105,7 +105,7 @@ def simplifica_arvore(nodo):
     simplifica_arvore(nodo.filhos[0])
     simplifica_arvore(nodo.filhos[1])
 
-def insere_nodo(nodo, num):
+def insere_nodo(nodo,num,ponteiro):
     num_str = str(num)  # Ensure the key is an 8-character string
     controle = True
     buffer_nodo = nodo
@@ -145,5 +145,6 @@ def insere_nodo(nodo, num):
                 nodo.filhos[int(num_str[nodo.index])] = Nodo(j, [Nodo(nodo.filhos[int(num_str[nodo.index])].index, [nodo.filhos[int(num_str[nodo.index])].filhos[0], nodo.filhos[int(num_str[nodo.index])].filhos[1]]), Nodo(num, [0, 0])])
             else:
                 nodo.filhos[int(num_str[nodo.index])] = Nodo(j, [Nodo(num, [0, 0]), Nodo(nodo.filhos[int(num_str[nodo.index])].index, [nodo.filhos[int(num_str[nodo.index])].filhos[0], nodo.filhos[int(num_str[nodo.index])].filhos[1]])])
+    insert_value_in_leaf(nodo,num,ponteiro)
 
 raiz = Nodo(1,[0,0])

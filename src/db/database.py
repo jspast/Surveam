@@ -203,13 +203,11 @@ class Database:
 
             if (filename == "category"):
                 chave= patricia.string_to_binary(record.name + record.platform)
-                patricia.insere_nodo(patricia.raiz,chave)
-                patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
 
             elif filename == "item":
-                chave = patricia.string_to_binary(record.name + record.id_category)
-                patricia.insere_nodo(patricia.raiz,chave)
-                patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
+                chave = patricia.string_to_binary(record.name + str(record.id_category))
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
 
         # Senão, faz busca binária para achar posição a inserir e insere após mover registros sequentes
         else:
@@ -229,13 +227,11 @@ class Database:
 
             if (filename == "category"):
                 chave= patricia.string_to_binary(record.name + record.platform)
-                patricia.insere_nodo(patricia.raiz,chave)
-                patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)
-
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
+                
             elif filename == "item":
-                chave = patricia.string_to_binary(record.name + record.id_category)
-                patricia.insere_nodo(patricia.raiz,chave)
-                patricia.insert_value_in_leaf(patricia.raiz,chave,ponteiro_patricia)        
+                chave = patricia.string_to_binary(record.name + str(record.id_category))
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)       
 
     # Fecha arquivo de dados
     def close_datafile(self, filename):
