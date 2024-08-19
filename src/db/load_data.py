@@ -190,11 +190,11 @@ def get_categories(db, platform, id_moment):
             survey_filter = []
             survey_filter.append((Survey.id_item, id))
 
-            moment_pos = db.search_id("survey", id_moment, Survey.id_moment, sizeof(Survey), -1, -1)
+            moment_pos = db.binary_search("survey", id_moment, Survey.id_moment, sizeof(Survey), -1, -1)
             first_moment = db.first("survey", id_moment, Survey.id_moment, moment_pos, sizeof(Survey))
             last_moment = db.last("survey", id_moment, Survey.id_moment, moment_pos, sizeof(Survey))
 
-            survey_record_pos = db.search_id("survey", id, Survey.id_item, sizeof(Survey), first_moment, last_moment)
+            survey_record_pos = db.binary_search("survey", id, Survey.id_item, sizeof(Survey), first_moment, last_moment)
             survey_record = db.get_record("survey", survey_record_pos, sizeof(Survey))
 
             if db.get_record_field_int_value(survey_record, Survey.id_item, False) == id:

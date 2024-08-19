@@ -97,18 +97,34 @@ class CategoryBox(Gtk.ListBox):
                 elif label[0] == "+":
                     label_widget.set_property("css_classes", ["success", "monospace"])
 
+        def str_sorter(object_a, object_b, column) -> bool:
+            a = getattr(object_a, column).lower()
+            b = getattr(object_b, column).lower()
+            return (a > b) - (a < b)
+
+        def percent_to_int(string):
+            return int(string[:-1].replace('.', ''))
+
+        def percent_sorter(object_a, object_b, column) -> bool:
+            a = percent_to_int(getattr(object_a, column))
+            b = percent_to_int(getattr(object_b, column))
+            return (a > b) - (a < b)
+
         self.name_factory.connect("setup", _on_factory_setup_name)
         self.percentage_factory.connect("setup", _on_factory_setup_percentage)
         self.change_factory.connect("setup", _on_factory_setup_change)
 
         self.name_factory.connect("bind", _on_factory_bind, "name")
         self.name_column.set_factory(self.name_factory)
+        self.name_column.set_sorter(Gtk.CustomSorter.new(str_sorter, "name"))
 
         self.percentage_factory.connect("bind", _on_factory_bind, "percentage")
         self.percentage_column.set_factory(self.percentage_factory)
+        self.percentage_column.set_sorter(Gtk.CustomSorter.new(percent_sorter, "percentage"))
 
         self.change_factory.connect("bind", _on_factory_bind, "change")
         self.change_column.set_factory(self.change_factory)
+        self.change_column.set_sorter(Gtk.CustomSorter.new(percent_sorter, "change"))
 
     def populate_column_view(self, list):
         super().__init__()
@@ -212,6 +228,17 @@ class MainWindow(Adw.ApplicationWindow):
         else:
             return
 
+        # Clear existing items
+        child = list.get_first_child()
+        while child != None:
+            list.remove(child)
+            child = list.get_first_child()
+
+        spinner = Gtk.Spinner()
+        spinner.set_property("height-request", 32)
+        list.append(spinner)
+        spinner.start()
+
         threading.Thread(target=self.fetch_and_process_categories, args=(platform, list)).start()
 
     def fetch_and_process_categories(self, platform, list):
@@ -222,16 +249,21 @@ class MainWindow(Adw.ApplicationWindow):
         GLib.idle_add(self.update_ui, categories, list)
 
     def update_ui(self, categories, list):
-        # Clear existing items
-        child = list.get_first_child()
-        while child != None:
-            list.remove(child)
-            child = list.get_first_child()
 
-        for category in categories:
-            box = CategoryBox(category[0], category[1][0][0], category[1][0][1])
-            list.append(box)
-            box.populate_column_view(category[1])
+        child = list.get_first_child()
+        list.remove(child)
+
+        if categories == []:
+            no_data = Adw.StatusPage()
+            no_data.set_title("No Results Found")
+            no_data.set_description("Try a different search or survey date")
+            list.append(no_data)
+
+        else:
+            for category in categories:
+                box = CategoryBox(category[0], category[1][0][0], category[1][0][1])
+                list.append(box)
+                box.populate_column_view(category[1])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -1,5 +1,5 @@
 import os
-from .patricia import *
+from . import patricia
 from ctypes import *
 
 datafile_ext = ".dat"
@@ -25,7 +25,7 @@ class Database:
             self.indexfiles[filename] = open(filename + indexfile_ext, 'wb+')
 
     # Busca binária por id único em arquivo sequencial, retorna posição do id no arquivo ou posição onde seria inserido
-    def search_id(self, filename, id, id_field, record_size, start, end):
+    def binary_search(self, filename, id, id_field, record_size, start, end):
 
         if end == -1:
             self.datafiles[filename].seek(0, 2)
@@ -97,7 +97,7 @@ class Database:
 
     # Devolve true se existe registro com o id no arquivo sequencial e false caso contrário
     def id_exists(self, filename, id, id_field, record_size):
-        record_num = self.search_id(filename, id, id_field, record_size)
+        record_num = self.binary_search(filename, id, id_field, record_size, -1, -1)
 
         record = self.get_record(filename, record_num, record_size)
 
@@ -198,9 +198,10 @@ class Database:
         # Se o registro a ser inserido for maior que o último, insere no final do arquivo
         if record_sort_value >= self.last_id(filename, sort_field, sizeof(record)):
             self.datafiles[filename].seek(0, 2)
-            ponteiro_patricia = self.datafiles[filename].tell()
+            #ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
 
+            '''
             if (filename == "category"):
                 chave= patricia.string_to_binary(record.name + record.platform)
                 patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
@@ -208,10 +209,11 @@ class Database:
             elif filename == "item":
                 chave = patricia.string_to_binary(record.name + str(record.id_category))
                 patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
+            '''
 
         # Senão, faz busca binária para achar posição a inserir e insere após mover registros sequentes
         else:
-            num = self.search_id(filename, record_sort_value, sort_field, sizeof(record))
+            num = self.binary_search(filename, record_sort_value, sort_field, sizeof(record), -1, -1)
             pos = num * sizeof(record)
 
             self.datafiles[filename].seek(0, 2)
@@ -222,16 +224,18 @@ class Database:
             self.datafiles[filename].seek(pos + sizeof(record), 0)
             self.datafiles[filename].write(data)
             self.datafiles[filename].seek(pos, 0)
-            ponteiro_patricia = self.datafiles[filename].tell()
+            #ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
 
+            '''
             if (filename == "category"):
                 chave= patricia.string_to_binary(record.name + record.platform)
                 patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
-                
+
             elif filename == "item":
                 chave = patricia.string_to_binary(record.name + str(record.id_category))
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)       
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
+            '''
 
     # Fecha arquivo de dados
     def close_datafile(self, filename):
