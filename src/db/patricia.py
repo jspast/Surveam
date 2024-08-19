@@ -9,13 +9,32 @@ class Nodo:
 def string_to_binary(s):
     return ''.join(format(ord(char), '08b') for char in s)
 
-# Pega uma sequencia binaria e converte para uma string
+# Pega uma chave da patricia (sequencia binaria) e converte para uma string (tira o primeiro digito por causa da adição do 1 em todas as chaves)
 def binary_to_string(binary_str):
+    binary_str = binary_str[1:]
     # Split the binary string into chunks of 8 bits
     chars = [binary_str[i:i+8] for i in range(0, len(binary_str), 8)]
     # Convert each 8-bit chunk to its corresponding ASCII character
     string = ''.join([chr(int(char, 2)) for char in chars])
     return string
+
+def get_parent_index(nodo, leaf):
+    # Helper function to traverse the tree and find the parent
+    def find_parent(current_node, target_leaf):
+        for filho in current_node.filhos:
+            if isinstance(filho, Nodo):
+                # Recursively search in child nodes
+                result = find_parent(filho, target_leaf)
+                if result is not None:
+                    return result
+            elif filho == target_leaf:
+                # If the leaf is found, return the index of the current node (parent)
+                return current_node.index
+        return None
+
+    # Start the search from the root node
+    return find_parent(nodo, leaf)
+
 
 # Pega a raiz da PATRICIA  e um indice (chave) e devolve a posição da chave no arquivo principal
 def get_leaves_by_index(nodo, target_index):
@@ -26,7 +45,7 @@ def get_leaves_by_index(nodo, target_index):
         if isinstance(filho, Nodo):
             result = get_leaves_by_index(filho, target_index)
             if result is not None:
-                return result[0]
+                return result
     return None
 
 # Auxiliar da get_leaves_by_index
@@ -105,7 +124,8 @@ def simplifica_arvore(nodo):
     simplifica_arvore(nodo.filhos[0])
     simplifica_arvore(nodo.filhos[1])
 
-def insere_nodo(nodo,num,ponteiro):
+
+def insere_nodo(nodo,num,ponteiro,tam_chave):
     num_str = str(num)  # Ensure the key is an 8-character string
     controle = True
     buffer_nodo = nodo
@@ -120,7 +140,7 @@ def insere_nodo(nodo,num,ponteiro):
             if isinstance(nodo.filhos[digito], int):
                 nodo.filhos[digito] = Nodo(num, [0, 0])
                 break
-            elif (len(str(nodo.filhos[digito].index)) >= 9):
+            elif (len(str(nodo.filhos[digito].index)) >= tam_chave+1):
                 controle = False
         if (controle and isinstance(nodo.filhos[digito], Nodo)):
             nodo = nodo.filhos[digito]
@@ -128,19 +148,19 @@ def insere_nodo(nodo,num,ponteiro):
         else:
             controle = False
     if (not controle):
-        while (len(str(nodo.filhos[int(num_str[nodo.index])].index)) < 9):
+        while (len(str(nodo.filhos[int(num_str[nodo.index])].index)) < tam_chave+1):
             nodo = nodo.filhos[int(num_str[nodo.index])]
         buffer_nodo = nodo.filhos[int(num_str[nodo.index])]
 
         j = 1
-        while j < 9 and str(buffer_nodo.index)[j] == num_str[j]:
+        while (j < tam_chave+1) and str(buffer_nodo.index)[j] == num_str[j]:
             j += 1
 
         nodo = salva_nodo 
         while(nodo.filhos[int(num_str[nodo.index])].index < j):
             nodo = nodo.filhos[int(num_str[nodo.index])]
 
-        if j < 9:
+        if j < tam_chave+1:
             if num_str[j] == '1':
                 nodo.filhos[int(num_str[nodo.index])] = Nodo(j, [Nodo(nodo.filhos[int(num_str[nodo.index])].index, [nodo.filhos[int(num_str[nodo.index])].filhos[0], nodo.filhos[int(num_str[nodo.index])].filhos[1]]), Nodo(num, [0, 0])])
             else:

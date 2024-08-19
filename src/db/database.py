@@ -1,5 +1,5 @@
 import os
-from . import patricia
+import patricia
 from ctypes import *
 
 datafile_ext = ".dat"
@@ -9,18 +9,19 @@ class Database:
     def __init__(self):
         self.datafiles = {}
         self.indexfiles = {}
-
+    
+    
     # Carrega/Cria arquivo de dados
     def open_datafile(self, filename):
         if os.path.exists(filename + datafile_ext):
-            self.datafiles[filename] = open(filename + datafile_ext, 'rb+')
+            self.datafiles[filename] = open(filename + datafile_ext, 'wb+')
         else:
             self.datafiles[filename] = open(filename + datafile_ext, 'wb+')
 
     # Carrega/Cria arquivo de índice
     def open_indexfile(self, filename):
         if os.path.exists(filename + indexfile_ext):
-            self.indexfiles[filename] = open(filename + indexfile_ext, 'rb+')
+            self.indexfiles[filename] = open(filename + indexfile_ext, 'wb+')
         else:
             self.indexfiles[filename] = open(filename + indexfile_ext, 'wb+')
 
@@ -194,22 +195,25 @@ class Database:
     #   field:  nome do atributo a ser indexado
     #   filename:   nome do arquivo de índice a ser utilizado
     def insert_record(self, filename, record, record_sort_value, sort_field, index):
-
         # Se o registro a ser inserido for maior que o último, insere no final do arquivo
         if record_sort_value >= self.last_id(filename, sort_field, sizeof(record)):
             self.datafiles[filename].seek(0, 2)
-            #ponteiro_patricia = self.datafiles[filename].tell()
+            ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
 
-            '''
+            
             if (filename == "category"):
-                chave= patricia.string_to_binary(record.name + record.platform)
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
+                chave= "1" + patricia.string_to_binary(record.name.decode() + record.platform.decode())
+                tam_chave = len(patricia.binary_to_string(chave))+1
+                chave = int(chave)
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia,tam_chave)
 
             elif filename == "item":
-                chave = patricia.string_to_binary(record.name + str(record.id_category))
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
-            '''
+                chave= "1" + patricia.string_to_binary(record.name.decode() + str(record.id_category))
+                tam_chave = len(patricia.binary_to_string(chave))+1
+                chave = int(chave)
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia,tam_chave)
+            
 
         # Senão, faz busca binária para achar posição a inserir e insere após mover registros sequentes
         else:
@@ -224,18 +228,22 @@ class Database:
             self.datafiles[filename].seek(pos + sizeof(record), 0)
             self.datafiles[filename].write(data)
             self.datafiles[filename].seek(pos, 0)
-            #ponteiro_patricia = self.datafiles[filename].tell()
+            ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
 
-            '''
+            
             if (filename == "category"):
-                chave= patricia.string_to_binary(record.name + record.platform)
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
+                chave= "1" +patricia.string_to_binary(record.name.decode() + record.platform.decode())
+                tam_chave = len(patricia.binary_to_string(chave))+1
+                chave = int(chave)
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia,tam_chave)
 
             elif filename == "item":
-                chave = patricia.string_to_binary(record.name + str(record.id_category))
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia)
-            '''
+                chave= "1" + patricia.string_to_binary(record.name.decode() + str(record.id_category))
+                tam_chave = len(patricia.binary_to_string(chave))+1
+                chave = int(chave)
+                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia,tam_chave)
+            
 
     # Fecha arquivo de dados
     def close_datafile(self, filename):

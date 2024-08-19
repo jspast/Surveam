@@ -5,7 +5,7 @@ from hashlib import blake2b
 from ctypes import *
 
 #Para executar sem a interface, tirar o ponto (!?)
-from .database import Database
+from database import Database
 
 class Category(Structure):
     _fields_ = [("id", c_uint16),
@@ -224,7 +224,7 @@ if __name__ == "__main__":
             print("Arquivo csv não encontrado")
             sys.exit()
 
-    if len(sys.argv) > 1 and sys.argv[1] == '-t':
+    elif len(sys.argv) > 1 and sys.argv[1] == '-t':
         db = open_database()
         print(get_categories(db, 'c', 2407))
 
@@ -232,3 +232,5 @@ if __name__ == "__main__":
     else:
         print("Para carregar dados de arquivo csv, use:\n", sys.argv[0], "-i csv")
         sys.exit()
+    
+
