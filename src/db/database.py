@@ -1,8 +1,8 @@
 import os
 from ctypes import *
 
-#import patricia    // Descomentar para executar diretamente pelo terminal
-from . import patricia
+#import trie    # Descomentar para executar diretamente pelo terminal
+from . import trie
 
 datafile_ext = ".dat"
 indexfile_ext = ".idx"
@@ -11,7 +11,6 @@ class Database:
     def __init__(self):
         self.datafiles = {}
         self.indexfiles = {}
-    
     
     # Carrega/Cria arquivo de dados
     def open_datafile(self, filename):
@@ -191,31 +190,11 @@ class Database:
 
     # Insere registro em arquivo sequencial
     # Ordena record_sort_value pelo atributo sort_field
-    # ToDo: Indexa com base na tupla index: (type, field, filename)
-    #   type:   0 = índice numérico
-    #           1 = índice patrícia
-    #   field:  nome do atributo a ser indexado
-    #   filename:   nome do arquivo de índice a ser utilizado
     def insert_record(self, filename, record, record_sort_value, sort_field, index):
         # Se o registro a ser inserido for maior que o último, insere no final do arquivo
         if record_sort_value >= self.last_id(filename, sort_field, sizeof(record)):
             self.datafiles[filename].seek(0, 2)
-            ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
-
-            
-            if (filename == "category"):
-                chave= "1" + patricia.string_to_binary(record.name.decode() + record.platform.decode())
-                tam_chave = len(patricia.binary_to_string(chave))+1
-                chave = int(chave)
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia,tam_chave)
-
-            elif filename == "item":
-                chave= "1" + patricia.string_to_binary(record.name.decode() + str(record.id_category))
-                tam_chave = len(patricia.binary_to_string(chave))+1
-                chave = int(chave)
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia,tam_chave)
-            
 
         # Senão, faz busca binária para achar posição a inserir e insere após mover registros sequentes
         else:
@@ -230,22 +209,32 @@ class Database:
             self.datafiles[filename].seek(pos + sizeof(record), 0)
             self.datafiles[filename].write(data)
             self.datafiles[filename].seek(pos, 0)
-            ponteiro_patricia = self.datafiles[filename].tell()
             self.datafiles[filename].write(record)
-
             
-            if (filename == "category"):
-                chave= "1" +patricia.string_to_binary(record.name.decode() + record.platform.decode())
-                tam_chave = len(patricia.binary_to_string(chave))+1
-                chave = int(chave)
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia,tam_chave)
+    # Controi árvore TRIE
+    def create_trie(self, filename, record_field):
+        current_trie = trie.PrefixTree()
 
-            elif filename == "item":
-                chave= "1" + patricia.string_to_binary(record.name.decode() + str(record.id_category))
-                tam_chave = len(patricia.binary_to_string(chave))+1
-                chave = int(chave)
-                patricia.insere_nodo(patricia.raiz,chave,ponteiro_patricia,tam_chave)
-            
+        self.datafiles[filename].seek(0, 2)
+        end = self.datafiles[filename].tell()
+
+        self.datafiles[filename].seek(0, 0)
+        file_offset = self.datafiles[filename].tell()
+
+        while file_offset < end:
+            insert_pos = self.datafiles[filename].tell() // sizeof(record_field)
+
+            if filename == "category":
+                pos_record = self.get_record(filename, insert_pos, sizeof(record_field))
+                trie_key = self.get_record_field_str_value(pos_record, record_field.name) + self.get_record_field_str_value(pos_record, record_field.platform)
+                current_trie.insert(trie_key, insert_pos)
+
+            if filename == "item":
+                pos_record = self.get_record(filename, insert_pos, sizeof(record_field))
+                trie_key = self.get_record_field_str_value(pos_record, record_field.name) + hex(self.get_record_field_int_value(pos_record, record_field.id_category, False))[2:]
+                current_trie.insert(trie_key, insert_pos)
+
+            file_offset = self.datafiles[filename].tell()
 
     # Fecha arquivo de dados
     def close_datafile(self, filename):

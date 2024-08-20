@@ -4,8 +4,10 @@ from hashlib import blake2b
 
 from ctypes import *
 
-#from database import Database  // Descomentar para executar diretamente pelo terminal
+#from database import Database  # Descomentar para executar diretamente pelo terminal
 from .database import Database
+
+import trie
 
 class Category(Structure):
     _fields_ = [("id", c_uint16),
@@ -103,8 +105,8 @@ def load_data(db, file):
         id_item.update(item)
         id_item.update(id_category)
 
-        id_category = int.from_bytes(id_category)
-        id_item = int.from_bytes(id_item.digest())
+        id_category = int.from_bytes(id_category, byteorder='little', signed=False)
+        id_item = int.from_bytes(id_item.digest(), byteorder='little', signed=False)
 
         # Calcula id do levantamento
         id_survey = id_moment * 10000000000 + id_item
@@ -129,6 +131,9 @@ def load_data(db, file):
             print(id_moment)
             moment_record = Moment(id=id_moment, month=month, year=year)
             db.insert_record("moment", moment_record, moment_record.id, Moment.id, [])
+    
+    db.create_trie("category", Category)
+    db.create_trie("item", Item)
 
 
 # Carrega/cria arquivos do banco de dados
@@ -234,5 +239,3 @@ if __name__ == "__main__":
     else:
         print("Para carregar dados de arquivo csv, use:\n", sys.argv[0], "-i csv")
         sys.exit()
-    
-
