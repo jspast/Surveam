@@ -1,6 +1,8 @@
 import os
-import patricia
 from ctypes import *
+
+#import patricia    // Descomentar para executar diretamente pelo terminal
+from . import patricia
 
 datafile_ext = ".dat"
 indexfile_ext = ".idx"
@@ -14,14 +16,14 @@ class Database:
     # Carrega/Cria arquivo de dados
     def open_datafile(self, filename):
         if os.path.exists(filename + datafile_ext):
-            self.datafiles[filename] = open(filename + datafile_ext, 'wb+')
+            self.datafiles[filename] = open(filename + datafile_ext, 'rb+')
         else:
             self.datafiles[filename] = open(filename + datafile_ext, 'wb+')
 
     # Carrega/Cria arquivo de índice
     def open_indexfile(self, filename):
         if os.path.exists(filename + indexfile_ext):
-            self.indexfiles[filename] = open(filename + indexfile_ext, 'wb+')
+            self.indexfiles[filename] = open(filename + indexfile_ext, 'rb+')
         else:
             self.indexfiles[filename] = open(filename + indexfile_ext, 'wb+')
 

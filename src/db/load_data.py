@@ -4,8 +4,8 @@ from hashlib import blake2b
 
 from ctypes import *
 
-#Para executar sem a interface, tirar o ponto (!?)
-from database import Database
+#from database import Database  // Descomentar para executar diretamente pelo terminal
+from .database import Database
 
 class Category(Structure):
     _fields_ = [("id", c_uint16),
@@ -35,10 +35,7 @@ class Survey(Structure):
 
 # Converte string de formato "X.XXXX" ou "-X.XXXX" em inteiro
 def code_percentage(string):
-    if string[0] == '-':
-        return int(string[:2] + string[3:])
-    else:
-        return int(string[:1] + string[2:])
+    return int(string.replace('.', ''))
 
 # Converte inteiro em string de popularidade
 def decode_popularity(int):
@@ -66,9 +63,11 @@ def load_data(db, file):
         # row é uma lista de strings de cada linha do csv
 
         # Codificação de data
-        year = int(row[0][2:-6])
-        month = int(row[0][5:-3])
-        id_moment = year * 100 + month
+        year_str = row[0][2:-6]
+        month_str = row[0][5:-3]
+        id_moment = int(year_str + month_str)
+        year = int(year_str)
+        month = int(month_str)
 
         # Codifica plataforma como caracter
         if platform_data == 1:
@@ -127,6 +126,7 @@ def load_data(db, file):
             db.insert_record("item", item_record, item_record.id, Item.id, [])
 
         if db.id_exists("moment", id_moment, Moment.id, sizeof(Moment)) == False:
+            print(id_moment)
             moment_record = Moment(id=id_moment, month=month, year=year)
             db.insert_record("moment", moment_record, moment_record.id, Moment.id, [])
 
@@ -197,12 +197,14 @@ def get_categories(db, platform, id_moment):
             survey_record_pos = db.binary_search("survey", id, Survey.id_item, sizeof(Survey), first_moment, last_moment)
             survey_record = db.get_record("survey", survey_record_pos, sizeof(Survey))
 
-            if db.get_record_field_int_value(survey_record, Survey.id_item, False) == id:
-                name = db.get_record_field_str_value(item, Item.name)
-                popularity = decode_popularity(db.get_record_field_int_value(survey_record, Survey.popularity, True))
-                change = decode_change(db.get_record_field_int_value(survey_record, Survey.change, True))
+            if survey_record != -1:
 
-                items_list.append((name, popularity, change))
+                if db.get_record_field_int_value(survey_record, Survey.id_item, False) == id:
+                    name = db.get_record_field_str_value(item, Item.name)
+                    popularity = decode_popularity(db.get_record_field_int_value(survey_record, Survey.popularity, True))
+                    change = decode_change(db.get_record_field_int_value(survey_record, Survey.change, True))
+
+                    items_list.append((name, popularity, change))
 
         if items_list != []:
             items_list.sort(key=lambda tup: float(tup[1][:-1]), reverse=True)
@@ -224,9 +226,9 @@ if __name__ == "__main__":
             print("Arquivo csv não encontrado")
             sys.exit()
 
-    elif len(sys.argv) > 1 and sys.argv[1] == '-t':
+    elif len(sys.argv) > 3 and sys.argv[1] == '-t':
         db = open_database()
-        print(get_categories(db, 'c', 2407))
+        print(get_categories(db, sys.argv[2], int(sys.argv[3])))
 
     # Imprime mensagem de ajuda
     else:

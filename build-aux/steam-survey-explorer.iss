@@ -36,18 +36,15 @@ Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortugue
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\builddir\output\bin\steam-survey-explorer"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: ".\python\pythonw.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: ".\python\python.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: ".\python\*.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "..\builddir\output\*"; DestDir: "{app}"; Excludes: "__pycache__"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ".\python\*"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "C:\gtk\bin\gdbus.exe"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\gtk\bin\gspawn-win64-helper.exe"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\gtk\bin\gspawn-win64-helper-console.exe"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\gtk\bin\*.dll"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\gtk\lib\gdk-pixbuf-2.0\*"; DestDir: "{app}\lib\gdk-pixbuf-2.0"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\gtk\lib\girepository-1.0\*"; DestDir: "{app}\lib\girepository-1.0"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Users\user\AppData\Roaming\Python\Python312\*"; DestDir: "{app}\lib\Python312"; Excludes: "__pycache__"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\builddir\output\share\*"; DestDir: "{app}\share"; Excludes: "__pycache__"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\user\AppData\Roaming\Python\Python312\*"; DestDir: "{app}\lib"; Excludes: "__pycache__"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
