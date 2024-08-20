@@ -7,7 +7,8 @@ from ctypes import *
 #from database import Database  # Descomentar para executar diretamente pelo terminal
 from .database import Database
 
-import trie
+#import trie    # Descomentar para executar diretamente pelo terminal
+from . import trie
 
 class Category(Structure):
     _fields_ = [("id", c_uint16),
