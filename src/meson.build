@@ -17,7 +17,7 @@ steam_survey_explorer_sources = [
   'window.py',
   'category_window.py',
   'db/database.py',
-  'db/load_data.py',
+  'db/data.py',
   'db/trie.py',
 ]
 

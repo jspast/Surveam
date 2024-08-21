@@ -4,10 +4,8 @@ from hashlib import blake2b
 
 from ctypes import *
 
-#from database import Database  # Descomentar para executar diretamente pelo terminal
 from .database import Database
 
-#import trie    # Descomentar para executar diretamente pelo terminal
 from . import trie
 
 class Category(Structure):
@@ -105,9 +103,10 @@ def load_data(db, file):
         id_item = blake2b(digest_size=4)
         id_item.update(item)
         id_item.update(id_category)
+        id_item = id_item.digest()
 
         id_category = int.from_bytes(id_category, byteorder='little', signed=False)
-        id_item = int.from_bytes(id_item.digest(), byteorder='little', signed=False)
+        id_item = int.from_bytes(id_item, byteorder='little', signed=False)
 
         # Calcula id do levantamento
         id_survey = id_moment * 10000000000 + id_item
@@ -132,10 +131,9 @@ def load_data(db, file):
             print(id_moment)
             moment_record = Moment(id=id_moment, month=month, year=year)
             db.insert_record("moment", moment_record, moment_record.id, Moment.id, [])
-    
-    db.create_trie("category", Category)
-    db.create_trie("item", Item)
 
+    db.build_trie("category", Category)
+    db.build_trie("item", Item)
 
 # Carrega/cria arquivos do banco de dados
 def open_database():
@@ -144,6 +142,7 @@ def open_database():
     db.open_datafile("category")
     db.open_datafile("item")
     db.open_datafile("moment")
+    db.open_indexfile("category")
     return db
 
 def close_database(db):
@@ -151,6 +150,7 @@ def close_database(db):
     db.close_datafile("category")
     db.close_datafile("item")
     db.close_datafile("moment")
+    db.save_indexfile("category")
 
 # Devolve lista com todos os momentos no banco de dados
 def get_moments(db):
@@ -168,12 +168,22 @@ def get_moments(db):
 
     return sorted(list)
 
-# Dados uma plataforma e um momento, devolve lista de categorias (que são tuplas(nome, lista de itens))
-def get_categories(db, platform, id_moment):
+# Dados uma plataforma e um momento (prefixo da categoria opcional), devolve lista de categorias (que são tuplas(nome, lista de itens))
+def get_categories(db, platform, id_moment, prefix):
 
     category_filter = []
     category_filter.append((Category.platform, platform))
     categories = db.filter_records("category", category_filter, sizeof(Category), -1, -1)
+
+    if prefix != '':
+        categories_pos = db.trietrees["category"].starts_with(prefix)
+
+        prefix_categories = []
+
+        for category_pos in categories_pos:
+            prefix_categories.append(db.get_record("category", category_pos, sizeof(Category)))
+
+        categories = list(set(categories) & set(prefix_categories))
 
     data = []
 
@@ -201,6 +211,8 @@ def get_categories(db, platform, id_moment):
             last_moment = db.last("survey", id_moment, Survey.id_moment, moment_pos, sizeof(Survey))
 
             survey_record_pos = db.binary_search("survey", id, Survey.id_item, sizeof(Survey), first_moment, last_moment)
+            if survey_record_pos > last_moment:
+                survey_record_pos = last_moment
             survey_record = db.get_record("survey", survey_record_pos, sizeof(Survey))
 
             if survey_record != -1:
@@ -218,25 +230,3 @@ def get_categories(db, platform, id_moment):
 
     return data
 
-
-if __name__ == "__main__":
-
-    # Carrega dados de arquivo csv
-    if len(sys.argv) > 2 and sys.argv[1] == '-i':
-        try:
-            with open(sys.argv[2], newline='') as csvfile:
-                db = open_database()
-                load_data(db, csvfile)
-
-        except FileNotFoundError:
-            print("Arquivo csv não encontrado")
-            sys.exit()
-
-    elif len(sys.argv) > 3 and sys.argv[1] == '-t':
-        db = open_database()
-        print(get_categories(db, sys.argv[2], int(sys.argv[3])))
-
-    # Imprime mensagem de ajuda
-    else:
-        print("Para carregar dados de arquivo csv, use:\n", sys.argv[0], "-i csv")
-        sys.exit()

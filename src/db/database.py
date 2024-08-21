@@ -1,7 +1,6 @@
-import os
+import os, pickle
 from ctypes import *
 
-#import trie    # Descomentar para executar diretamente pelo terminal
 from . import trie
 
 datafile_ext = ".dat"
@@ -10,8 +9,8 @@ indexfile_ext = ".idx"
 class Database:
     def __init__(self):
         self.datafiles = {}
-        self.indexfiles = {}
-    
+        self.trietrees = {}
+
     # Carrega/Cria arquivo de dados
     def open_datafile(self, filename):
         if os.path.exists(filename + datafile_ext):
@@ -19,12 +18,12 @@ class Database:
         else:
             self.datafiles[filename] = open(filename + datafile_ext, 'wb+')
 
-    # Carrega/Cria arquivo de índice
+    # Carrega arquivo de índice
     def open_indexfile(self, filename):
         if os.path.exists(filename + indexfile_ext):
-            self.indexfiles[filename] = open(filename + indexfile_ext, 'rb+')
-        else:
-            self.indexfiles[filename] = open(filename + indexfile_ext, 'wb+')
+            with open(filename + indexfile_ext, 'rb+') as file:
+                self.trietrees[filename] = pickle.load(file)
+
 
     # Busca binária por id único em arquivo sequencial, retorna posição do id no arquivo ou posição onde seria inserido
     def binary_search(self, filename, id, id_field, record_size, start, end):
@@ -210,10 +209,10 @@ class Database:
             self.datafiles[filename].write(data)
             self.datafiles[filename].seek(pos, 0)
             self.datafiles[filename].write(record)
-            
+
     # Controi árvore TRIE
-    def create_trie(self, filename, record_field):
-        current_trie = trie.PrefixTree()
+    def build_trie(self, filename, record_field):
+        self.trietrees[filename] = trie.PrefixTree()
 
         self.datafiles[filename].seek(0, 2)
         end = self.datafiles[filename].tell()
@@ -227,12 +226,12 @@ class Database:
             if filename == "category":
                 pos_record = self.get_record(filename, insert_pos, sizeof(record_field))
                 trie_key = self.get_record_field_str_value(pos_record, record_field.name) + self.get_record_field_str_value(pos_record, record_field.platform)
-                current_trie.insert(trie_key, insert_pos)
+                self.trietrees[filename].insert(trie_key, insert_pos)
 
             if filename == "item":
                 pos_record = self.get_record(filename, insert_pos, sizeof(record_field))
                 trie_key = self.get_record_field_str_value(pos_record, record_field.name) + hex(self.get_record_field_int_value(pos_record, record_field.id_category, False))[2:]
-                current_trie.insert(trie_key, insert_pos)
+                self.trietrees[filename].insert(trie_key, insert_pos)
 
             file_offset = self.datafiles[filename].tell()
 
@@ -241,5 +240,7 @@ class Database:
         self.datafiles[filename].close()
 
     # Fecha arquivo de índice
-    def close_indexfile(self, filename):
-        self.indexfiles[filename].close()
+    def save_indexfile(self, filename):
+        if filename in self.trietrees:
+            with open(filename + indexfile_ext, 'wb') as file:
+                pickle.dump(self.trietrees[filename], file, protocol=pickle.HIGHEST_PROTOCOL)

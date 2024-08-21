@@ -11,11 +11,15 @@ from .window import MainWindow
 class SteamSurveyExplorerApplication(Adw.Application):
     """The main application singleton class."""
 
+    win = None
+
     def __init__(self):
         super().__init__(application_id='io.github.jspast.SteamSurveyExplorer',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
+        self.connect("shutdown", self.on_shutdown)
+        self.win
 
     def do_activate(self):
         """Called when the application is activated.
@@ -23,10 +27,10 @@ class SteamSurveyExplorerApplication(Adw.Application):
         We raise the application's main window, creating it if
         necessary.
         """
-        win = self.props.active_window
-        if not win:
-            win = MainWindow(application=self)
-        win.present()
+        self.win = self.props.active_window
+        if not self.win:
+            self.win = MainWindow(application=self)
+        self.win.present()
 
     def on_about_action(self, *args):
         """Callback for the app.about action."""
@@ -34,6 +38,10 @@ class SteamSurveyExplorerApplication(Adw.Application):
             '/io/github/jspast/SteamSurveyExplorer/ui/about_dialog.ui'
         ).get_object('about')
         about.present(self.props.active_window)
+
+    def on_shutdown(self, app):
+        # Handle application shutdown
+        self.win.close_files()
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.

@@ -1,12 +1,9 @@
 from gi.repository import Adw, Gio, Gtk, GObject, GLib
-
+from io import StringIO
 import threading
 
 from .category_window import CategoryWindow
-
-from .load_data import *
-
-from io import StringIO
+from .data import *
 
 class Item(GObject.Object):
     def __init__(self, name, percentage, change):
@@ -144,6 +141,7 @@ class MainWindow(Adw.ApplicationWindow):
     stack = Gtk.Template.Child()
 
     date_dropdown = Gtk.Template.Child()
+    search_entry = Gtk.Template.Child()
 
     windows_list = Gtk.Template.Child()
     combined_list = Gtk.Template.Child()
@@ -186,6 +184,9 @@ class MainWindow(Adw.ApplicationWindow):
         if self.date_dropdown.get_selected() == None:
             self.date_dropdown.set_selected(0)
 
+    def close_files(self):
+        close_database(self.db)
+
     def populate_date_dropdown(self):
         moment_strings = Gtk.StringList()
         self.date_dropdown.props.model = moment_strings
@@ -208,6 +209,10 @@ class MainWindow(Adw.ApplicationWindow):
             self.populate_platform()
 
     def on_page_changed(self, stack, _pspec):
+        self.populate_platform()
+
+    def on_search_changed(self, _pspec):
+        self.loaded_pages = [False, False, False, False]
         self.populate_platform()
 
     def populate_platform(self):
@@ -243,7 +248,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     def fetch_and_process_categories(self, platform, list):
         # Fetch categories from the database
-        categories = get_categories(self.db, platform, self.moment)
+        categories = get_categories(self.db, platform, self.moment, self.search_entry.get_text())
 
         # Update the UI with the categories
         GLib.idle_add(self.update_ui, categories, list)
@@ -288,3 +293,4 @@ class MainWindow(Adw.ApplicationWindow):
 
         self.populate_date_dropdown()
 
+        self.search_entry.connect("search-changed", self.on_search_changed)
