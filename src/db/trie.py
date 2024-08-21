@@ -21,8 +21,8 @@ class PrefixTree:
 
     def find(self, word):
         '''
-        Returns the TrieNode representing the given word if it exists
-        and None otherwise.
+        Vai percorrendo a palavra até encontrar um nodo que corresponda à
+        palavra, e retorna ele, se encontrar, senão, retorna None
         '''
         current = self.root
         for char in word:
@@ -35,26 +35,22 @@ class PrefixTree:
 
     def starts_with(self, prefix):
         '''
-        Returns a list of all words beginning with the given prefix, or
-        an empty list if no words begin with that prefix.
+        Retorna todas as palavras que começam com o prefixo dado
         '''
         positions = list()
         current = self.root
         for char in prefix:
             if char not in current.children:
-                # Could also just return words since it's empty by default
                 return list()
             current = current.children[char]
 
-        # Step 2
         self.__child_pos_for(current, positions)
         return positions
     
     def __child_pos_for(self, node, positions):
         '''
-        Private helper function. Cycles through all children
-        of node recursively, adding them to words if they
-        constitute whole words (as opposed to merely prefixes).
+        Função auxiliar que vai percorrendo todos os filhos recursivamente
+        adicionando eles, se forem palavras
         '''
         if node.is_word:
             positions.append(node.file_pos)
@@ -63,26 +59,22 @@ class PrefixTree:
 
     def starts_with2(self, prefix):
         '''
-        Returns a list of all words beginning with the given prefix, or
-        an empty list if no words begin with that prefix.
+        Retorna todas as palavras que começam com o prefixo dado
         '''
         words = list()
         current = self.root
         for char in prefix:
             if char not in current.children:
-                # Could also just return words since it's empty by default
                 return list()
             current = current.children[char]
 
-        # Step 2
         self.__child_words_for(current, words)
         return words
 
     def __child_words_for(self, node, words):
         '''
-        Private helper function. Cycles through all children
-        of node recursively, adding them to words if they
-        constitute whole words (as opposed to merely prefixes).
+        Função auxiliar que vai percorrendo todos os filhos recursivamente
+        adicionando eles, se forem palavras
         '''
         if node.is_word:
             words.append(node.text)
