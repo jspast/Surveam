@@ -10,9 +10,7 @@ project(
 
 # Translations are broken on Windows for multiple reasons
 # gresources don't work and MSYS2 seems to have also broken the gettext package
-if host_machine.system() != 'windows'
-  i18n = import('i18n')
-endif
+i18n = import('i18n')
 
 gnome = import('gnome')
 python = import('python')

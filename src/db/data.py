@@ -12,19 +12,16 @@ class Category(Structure):
     _fields_ = [("id", c_uint16),
                 ("name", c_char * 61),
                 ("platform", c_char)]
-    _pack_ = 1
 
 class Item(Structure):
     _fields_ = [("id", c_uint32),
                 ("name", c_char * 58),
                 ("id_category", c_uint16)]
-    _pack_ = 1
 
 class Moment(Structure):
     _fields_ = [("id", c_uint16),
                 ("month", c_uint8),
                 ("year", c_uint8)]
-    _pack_ = 1
 
 class Survey(Structure):
     _fields_ = [("id", c_uint64),
@@ -32,7 +29,6 @@ class Survey(Structure):
                 ("change", c_int16),
                 ("id_moment", c_uint16),
                 ("id_item", c_uint32)]
-    _pack_ = 1
 
 # Converte string de formato "X.XXXX" ou "-X.XXXX" em inteiro
 def code_percentage(string):

@@ -35,7 +35,7 @@ class PrefixTree:
 
     def starts_with(self, prefix):
         '''
-        Retorna todas as palavras que começam com o prefixo dado
+        Retorna as posições de todas as palavras que começam com o prefixo dado
         '''
         positions = list()
         current = self.root
@@ -46,11 +46,11 @@ class PrefixTree:
 
         self.__child_pos_for(current, positions)
         return positions
-    
+
     def __child_pos_for(self, node, positions):
         '''
         Função auxiliar que vai percorrendo todos os filhos recursivamente
-        adicionando eles, se forem palavras
+        adicionando eles, se forem palavras, adicionando as posições
         '''
         if node.is_word:
             positions.append(node.file_pos)
@@ -74,21 +74,9 @@ class PrefixTree:
     def __child_words_for(self, node, words):
         '''
         Função auxiliar que vai percorrendo todos os filhos recursivamente
-        adicionando eles, se forem palavras
+        adicionando eles, se forem palavras, adicionando as palavras
         '''
         if node.is_word:
             words.append(node.text)
         for letter in node.children:
             self.__child_words_for(node.children[letter], words)
-
-if __name__ == '__main__':
-    trie = PrefixTree()
-    trie.insert('apple')
-    trie.insert('app')
-    trie.insert('aposematic')
-    trie.insert('appreciate')
-    trie.insert('book')
-    trie.insert('bad')
-    trie.insert('bear')
-    trie.insert('bat')
-    print(trie.starts_with('app'))

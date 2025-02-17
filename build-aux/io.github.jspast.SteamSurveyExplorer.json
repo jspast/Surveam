@@ -1,7 +1,7 @@
 {
     "id" : "io.github.jspast.SteamSurveyExplorer",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "46",
+    "runtime-version" : "47",
     "sdk" : "org.gnome.Sdk",
     "command" : "steam-survey-explorer",
     "finish-args" : [
@@ -23,7 +23,6 @@
         "*.a"
     ],
     "modules" : [
-    	"python3-matplotlib.json",
         {
             "name" : "steam-survey-explorer",
             "builddir" : true,
