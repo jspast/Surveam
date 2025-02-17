@@ -1,0 +1,8 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/io.github.jspast.Surveam.desktop.in
+data/io.github.jspast.Surveam.metainfo.xml.in
+data/io.github.jspast.Surveam.gschema.xml
+src/main.py
+src/window.py
+src/window.ui

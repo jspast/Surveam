@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=surveam
+Exec=surveam
+Icon=io.github.jspast.Surveam
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true
