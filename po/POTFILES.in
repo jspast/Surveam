@@ -5,4 +5,4 @@ data/io.github.jspast.Surveam.metainfo.xml.in
 data/io.github.jspast.Surveam.gschema.xml
 src/main.py
 src/window.py
-src/window.ui
+src/window.blp
