@@ -43,4 +43,15 @@ configure_file(
   install_dir: get_option('datadir') / 'dbus-1' / 'services'
 )
 
+styles = files(
+  'styles/adwaita.mplstyle',
+  'styles/adwaita-dark.mplstyle',
+)
+
+install_data(styles, install_dir: moduledir / 'styles')
+
+csvs = files('shs.csv', 'shs_platform.csv', 'mapping.csv')
+
+install_data(csvs, install_dir: moduledir / 'data')
+
 subdir('icons')

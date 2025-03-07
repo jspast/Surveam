@@ -1,40 +1,70 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $SurveamWindow: Adw.ApplicationWindow {
+template $Window: Adw.ApplicationWindow {
   title: _("Surveam");
   default-width: 800;
   default-height: 600;
+  width-request: 360;
+  height-request: 200;
 
-  content: Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {
-      [end]
-      MenuButton {
-        primary: true;
-        icon-name: "open-menu-symbolic";
-        tooltip-text: _("Main Menu");
-        menu-model: primary_menu;
+    content: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        [end]
+        MenuButton {
+          primary: true;
+          icon-name: "open-menu-symbolic";
+          tooltip-text: _("Main Menu");
+          menu-model: primary_menu;
+        }
       }
+
+      content: Adw.Bin graph_bin {
+        $Graph graph {}
+      };
+
+    [bottom]
+    CenterBox {
+      hexpand: true;
+      margin-bottom: 12;
+      margin-end: 12;
+      margin-start: 12;
+      margin-top: 12;
+
+      start-widget: DropDown platform_dropdown {
+        halign: start;
+        hexpand: true;
+      };
+
+      center-widget: DropDown category_dropdown {
+        enable-search: true;
+        search-match-mode: substring;
+        halign: center;
+        hexpand: true;
+        margin-end: 12;
+        margin-start: 12;
+        expression: expr item as <$GtkStringObject>.string;
+      };
+
+      end-widget: Box {
+        spacing: 12;
+
+        DropDown start_date_dropdown {
+          halign: end;
+          hexpand: true;
+        }
+        DropDown end_date_dropdown {
+          halign: start;
+          hexpand: true;
+        }
+      };
     }
-
-    content: Label label {
-      label: _("Hello, World!");
-
-      styles [
-        "title-1",
-      ]
-    };
   };
 }
 
 menu primary_menu {
   section {
-    item {
-      label: _("_Preferences");
-      action: "app.preferences";
-    }
-
     item {
       label: _("_Keyboard Shortcuts");
       action: "win.show-help-overlay";

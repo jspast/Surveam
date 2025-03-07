@@ -1,5 +1,3 @@
-pkgdatadir = get_option('prefix') / get_option('datadir') / meson.project_name()
-moduledir = pkgdatadir / 'surveam'
 gnome = import('gnome')
 
 blueprints = custom_target('blueprints',
@@ -40,6 +38,8 @@ surveam_sources = [
   '__init__.py',
   'main.py',
   'window.py',
+  'data.py',
+  'graph.py',
 ]
 
 install_data(surveam_sources, install_dir: moduledir)

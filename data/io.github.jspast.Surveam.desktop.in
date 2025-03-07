@@ -1,10 +1,11 @@
 [Desktop Entry]
-Name=surveam
+Name=Surveam
+Comment=Visualize Steam Survey data
 Exec=surveam
 Icon=io.github.jspast.Surveam
 Terminal=false
 Type=Application
 Categories=Utility;
-Keywords=GTK;
+Keywords=GTK,Steam Survey;
 StartupNotify=true
 DBusActivatable=true

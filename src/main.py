@@ -1,6 +1,6 @@
 # main.py
 #
-# Copyright 2025 João
+# Copyright 2025 João Pastorello
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,16 +18,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
+
 import gi
+try:
+    gi.require_version('Adw', '1')
+    from gi.repository import Gio, Adw
+except ImportError or ValueError as exc:
+    print('Error: Dependencies not met.', exc)
+    sys.exit(1)
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
-
-from gi.repository import Gtk, Gio, Adw
-from .window import SurveamWindow
+from .window import Window
+from .data import Data
 
 
-class SurveamApplication(Adw.Application):
+class Application(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
@@ -35,7 +39,10 @@ class SurveamApplication(Adw.Application):
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
-        self.create_action('preferences', self.on_preferences_action)
+        self.connect("shutdown", self.on_shutdown)
+
+        self.data = Data()
+        self.data.load_from_original_csvs()
 
     def do_activate(self):
         """Called when the application is activated.
@@ -45,24 +52,24 @@ class SurveamApplication(Adw.Application):
         """
         win = self.props.active_window
         if not win:
-            win = SurveamWindow(application=self)
+            win = Window(application=self, data=self.data)
         win.present()
+
+    def on_shutdown(self, app):
+        pass
 
     def on_about_action(self, *args):
         """Callback for the app.about action."""
-        about = Adw.AboutDialog(application_name='surveam',
+        about = Adw.AboutDialog(application_name='Surveam',
                                 application_icon='io.github.jspast.Surveam',
-                                developer_name='João',
-                                version='0.1.0',
-                                developers=['João'],
-                                copyright='© 2025 João')
-        # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
+                                developer_name='João Pastorello',
+                                version='1.0.0',
+                                developers=['João Pastorello'],
+                                copyright='© 2025 João Pastorello')
+        # Translators: Replace "translator-credits" with your name/username,
+        # and optionally an email or URL.
         about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
-
-    def on_preferences_action(self, widget, _):
-        """Callback for the app.preferences action."""
-        print('app.preferences action activated')
 
     def create_action(self, name, callback, shortcuts=None):
         """Add an application action.
@@ -82,5 +89,5 @@ class SurveamApplication(Adw.Application):
 
 def main(version):
     """The application's entry point."""
-    app = SurveamApplication()
+    app = Application()
     return app.run(sys.argv)
