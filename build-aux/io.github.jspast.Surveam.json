@@ -25,6 +25,18 @@
         "qhull.json",
         "python3-matplotlib.json",
         {
+            "name": "blueprint-compiler",
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
+                    "tag": "v0.16.0"
+                }
+            ],
+            "cleanup": ["*"]
+        },
+        {
             "name" : "surveam",
             "builddir" : true,
             "buildsystem" : "meson",
