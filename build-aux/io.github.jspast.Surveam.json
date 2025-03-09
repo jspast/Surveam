@@ -30,8 +30,8 @@
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "file:///home/joao/Projetos"
+                    "type" : "dir",
+                    "path": "../../"
                 }
             ]
         }
