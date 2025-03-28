@@ -8,7 +8,9 @@
         "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"meson-python>=0.13.1,<0.17.0\" --no-build-isolation",
         "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"matplotlib\" --no-build-isolation --config-settings=setup-args=\"-Dsystem-freetype=true\" --config-settings=setup-args=\"-Dsystem-qhull=true\"",
         "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"versioneer\" --no-build-isolation",
-        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pandas[parquet]\" --no-build-isolation"
+        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pandas[parquet]\" --no-build-isolation",
+        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"gio_pyio\" --no-build-isolation",
+        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"mplcairo\" --no-build-isolation"
     ],
     "sources": [
         {
@@ -210,6 +212,16 @@
             "type": "file",
             "url": "https://files.pythonhosted.org/packages/fe/4f/a2c0ed309167ef436674782dfee4a124570ba64299c551e38d3fdaf0a17b/pyarrow-19.0.1-cp312-cp312-manylinux_2_28_aarch64.whl",
             "sha256": "d383591f3dcbe545f6cc62daaef9c7cdfe0dff0fb9e1c8121101cabe9098cfa6"
+        },
+        {
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/46/88/96afb5571b9aefa314b3f63ff01f1180f6f0f7bfac1585be5740f78c41db/gio_pyio-0.0.6-py3-none-any.whl",
+            "sha256": "300b73f4904fb933c751f19b08667e0b91fc73e35aca863cd72c1595aa480134"
+        },
+        {
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/cc/b2/c4cfa9796e73227205a98e82a68ad5af85c858848ee50752c4c1fcd8ef66/mplcairo-0.6.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+            "sha256": "351046cc6c6ed4f37031947dc88a4bfb104dff474631b1cfa6ee7274e9a6031d"
         }
     ]
 }

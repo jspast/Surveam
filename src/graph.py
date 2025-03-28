@@ -23,19 +23,34 @@ from pathlib import Path
 import gi
 try:
     gi.require_version('Adw', '1')
-    from gi.repository import Adw, GLib
+    from gi.repository import Adw, GLib, GObject
 except ImportError or ValueError as exc:
     print('Error: Dependencies not met.', exc)
     sys.exit(1)
 
-from matplotlib.backends.backend_gtk4cairo import \
-    FigureCanvasGTK4Cairo as FigureCanvas
-from matplotlib.figure import Figure
+import gio_pyio
 
 import matplotlib as mpl
 import matplotlib.style as mstyle
 import matplotlib.dates as mdates
 import matplotlib.ticker as mtick
+import matplotlib.pyplot as plt
+
+from matplotlib.backends.backend_gtk4cairo import \
+    FigureCanvasGTK4Cairo as FigureCanvas
+
+LEGEND_POSITIONS = [
+    "best",
+    "upper right",
+    "upper left",
+    "lower left",
+    "lower right",
+    "center left",
+    "center right",
+    "lower center",
+    "upper center",
+    "center",
+]
 
 
 class Graph(FigureCanvas):
@@ -45,11 +60,12 @@ class Graph(FigureCanvas):
         super().__init__()
 
         style = Adw.StyleManager.get_default()
-
         style.connect('notify::dark', self._on_theme_change)
 
-        # The font is not being set currently
-        # self._load_fonts()
+        self._legend = True
+        self._legend_position = LEGEND_POSITIONS[0]
+
+        self._load_fonts()
         self.set_theme(style.get_dark())
 
         self._setup_figure()
@@ -64,7 +80,7 @@ class Graph(FigureCanvas):
                 print(f"Could not load {font}")
 
     def _setup_figure(self):
-        self.figure = Figure(layout='constrained')
+        self.figure = plt.figure(layout='constrained')
         self.figure.get_layout_engine().set(w_pad=0.2, h_pad=0.2)
         self._axis = self.figure.add_subplot()
 
@@ -93,15 +109,24 @@ class Graph(FigureCanvas):
     def set_data(self, df):
         self.df = df
 
+    def set_items_visibility(self, items_visibility):
+        self.items_visibility = items_visibility
+
     def _redraw(self):
         self._axis.clear()
 
         for name in self.df.index.get_level_values("name").drop_duplicates():
-            self._axis.plot(self.df.xs(name), label=name)
+            if (self.filter_items):
+                if (self.items_visibility[name]):
+                    self._axis.plot(self.df.xs(name), label=name)
+            else:
+                self._axis.plot(self.df.xs(name), label=name)
 
         self._axis.set_title(self.title)
-        leg = self._axis.legend(loc="upper left")
-        leg.set_in_layout(False)
+
+        self._handles = self._axis.get_legend_handles_labels()[0]
+        self.update_legend()
+
         self._axis.set_ylabel('Popularity')
 
         self._axis.xaxis.set_major_locator(mdates.AutoDateLocator())
@@ -114,9 +139,111 @@ class Graph(FigureCanvas):
 
         self.draw()
 
-    def update(self, title, df):
+    def update(self, title, df, items_visibility):
         self.set_title(title)
         self.set_data(df)
+        self.set_items_visibility(items_visibility)
 
         self._redraw()
 
+    def update_item_visibility(self, items_visibility):
+        self.set_items_visibility(items_visibility)
+
+        self._redraw()
+
+    def update_legend(self) -> None:
+        """Update the legend or hide if not used."""
+        if self._legend and self._handles:
+            leg = self._axis.legend(
+                handles=self._handles,
+                loc=self._legend_position,
+                frameon=True,
+                reverse=True,
+            )
+            leg.set_in_layout(False)
+            self.queue_draw()
+            return
+        legend = self._axis.get_legend()
+        if legend is not None:
+            legend.remove()
+        self.queue_draw()
+
+    @GObject.Property(type=bool, default=False)
+    def filter_items(self) -> bool:
+        """Whether or not, the legend is visible."""
+        return self._filter_items
+
+    @filter_items.setter
+    def filter_items(self, filter_items: bool) -> None:
+        self._filter_items = filter_items
+        self._redraw()
+
+    @GObject.Property(type=bool, default=True)
+    def legend(self) -> bool:
+        """Whether or not, the legend is visible."""
+        return self._legend
+
+    @legend.setter
+    def legend(self, legend: bool) -> None:
+        self._legend = legend
+        self.update_legend()
+
+    @GObject.Property(type=int, default=0)
+    def legend_position(self) -> int:
+        """Legend Position (see `LEGEND_POSITIONS`)."""
+        return LEGEND_POSITIONS.index(self._legend_position)
+
+    @legend_position.setter
+    def legend_position(self, legend_position: int) -> None:
+        self._legend_position = LEGEND_POSITIONS[legend_position]
+        self.update_legend()
+
+    @GObject.Property(type=str)
+    def title(self) -> str:
+        """Figure title."""
+        return self._axis.get_title()
+
+    @title.setter
+    def title(self, title: str) -> None:
+        self._axis.set_title(title, picker=True).id = "title"
+        self.queue_draw()
+
+    @GObject.Property(type=str)
+    def bottom_label(self) -> str:
+        """Label of the bottom axis."""
+        return self._axis.get_xlabel()
+
+    @bottom_label.setter
+    def bottom_label(self, label: str) -> None:
+        self._axis.set_xlabel(label, picker=True).id = "bottom_label"
+        self.queue_draw()
+
+    @GObject.Property(type=str)
+    def left_label(self) -> str:
+        """Label of the left axis."""
+        return self._axis.get_ylabel()
+
+    @left_label.setter
+    def left_label(self, label: str) -> None:
+        self._axis.set_ylabel(label, picker=True).id = "left_label"
+        self.queue_draw()
+
+    @GObject.Property(type=float)
+    def min_bottom(self) -> float:
+        """Lower limit for the bottom axis."""
+        return self._axis.get_xlim()[0]
+
+    @min_bottom.setter
+    def min_bottom(self, value: float) -> None:
+        self._axis.set_xlim(value, None)
+        self.queue_draw()
+
+    @GObject.Property(type=float)
+    def max_bottom(self) -> float:
+        """Upper limit for the bottom axis."""
+        return self._axis.get_xlim()[1]
+
+    @max_bottom.setter
+    def max_bottom(self, value: float) -> None:
+        self._axis.set_xlim(None, value)
+        self.queue_draw()

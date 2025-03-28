@@ -35,12 +35,18 @@ from .graph import Graph
 class Window(Adw.ApplicationWindow):
     __gtype_name__ = 'Window'
 
+    title = Gtk.Template.Child()
+
     graph = Gtk.Template.Child()
 
     platform_dropdown = Gtk.Template.Child()
     category_dropdown = Gtk.Template.Child()
     start_date_dropdown = Gtk.Template.Child()
     end_date_dropdown = Gtk.Template.Child()
+    items_wrapbox = Gtk.Template.Child()
+    items_switch = Gtk.Template.Child()
+
+    legend_switch = Gtk.Template.Child()
 
     def __init__(self, data, **kwargs):
         super().__init__(**kwargs)
@@ -54,8 +60,9 @@ class Window(Adw.ApplicationWindow):
                                        self._on_category_selected)
 
         self._connect_date_dropdowns()
-
         self._populate_platform_dropdown()
+
+        self.legend_switch.set_active(True)
 
     def _connect_date_dropdowns(self):
         self.start_date_signal = self.start_date_dropdown.connect(
@@ -76,6 +83,8 @@ class Window(Adw.ApplicationWindow):
 
     def _on_platform_selected(self, dropdown, _):
         self.selected_platform = dropdown.get_selected_item().get_string()
+        self.title.set_subtitle(self.selected_platform)
+
         self._populate_category_dropdown()
 
     def _populate_category_dropdown(self):
@@ -85,6 +94,8 @@ class Window(Adw.ApplicationWindow):
 
     def _on_category_selected(self, dropdown, _):
         self.selected_category = dropdown.get_selected_item().get_string()
+        self.title.set_title(self.selected_category)
+
         self._populate_date_dropdowns()
 
     def _populate_date_dropdowns(self):
@@ -108,6 +119,7 @@ class Window(Adw.ApplicationWindow):
 
     def _on_start_date_selected(self, dropdown, _):
         start_date_num = dropdown.get_selected()
+
         # In this case, this is faster than
         # dropdown.get_selected_item().get_string():
         self.start_date = self.dates[start_date_num]
@@ -125,6 +137,7 @@ class Window(Adw.ApplicationWindow):
 
     def _on_end_date_selected(self, dropdown, _):
         end_date_num = dropdown.get_selected()
+
         # In this case, this is faster than
         # self.dates[end_date_num + ...]:
         self.end_date = dropdown.get_selected_item().get_string()
@@ -156,5 +169,34 @@ class Window(Adw.ApplicationWindow):
                                                       self.start_date,
                                                       self.end_date)
 
-        self.graph.update(self.selected_category, self.graph_data)
+        self._update_items()
 
+        self.graph.update(self.selected_category,
+                          self.graph_data,
+                          self.items_visibility)
+
+    def _on_item_toggled(self, button):
+        self.items_visibility[button.get_label()] = button.get_active()
+        self.graph.update_item_visibility(self.items_visibility)
+
+    @staticmethod
+    def _remove_children(box):
+        while (box.get_first_child()):
+            box.remove(box.get_first_child())
+
+    def _clear_items(self):
+        Window._remove_children(self.items_wrapbox)
+
+    def _add_items(self):
+        items = self.data.get_item_names(self.graph_data)
+        for item in items:
+            button = Gtk.ToggleButton(label=item, active=True)
+            button.set_can_shrink(True)
+            button.connect('toggled', self._on_item_toggled)
+            self.items_wrapbox.prepend(button)
+
+        self.items_visibility = {item: True for item in items}
+
+    def _update_items(self):
+        self._clear_items()
+        self._add_items()

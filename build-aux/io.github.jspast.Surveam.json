@@ -1,7 +1,7 @@
 {
     "id" : "io.github.jspast.Surveam",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "47",
+    "runtime-version" : "48",
     "sdk" : "org.gnome.Sdk",
     "command" : "surveam",
     "finish-args" : [
@@ -23,7 +23,7 @@
     ],
     "modules" : [
         "qhull.json",
-        "python3-matplotlib.json",
+        "python-dependencies.json",
         {
             "name": "blueprint-compiler",
             "buildsystem": "meson",

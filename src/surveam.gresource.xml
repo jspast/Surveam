@@ -5,6 +5,7 @@
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
   </gresource>
   <gresource prefix="/io/github/jspast/Surveam/icons/scalable/actions/">
+    <file preprocess="xml-stripblanks" alias="dock-left-symbolic.svg">../data/icons/hicolor/symbolic/actions/dock-left-symbolic.svg</file>
   </gresource>
   <gresource prefix="/io/github/jspast/Surveam/styles/">
     <file compressed="True" alias="adwaita.mplstyle">../data/styles/adwaita.mplstyle</file>

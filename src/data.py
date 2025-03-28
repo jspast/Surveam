@@ -157,8 +157,12 @@ class Data():
 
     def get_dates(self, platform, category):
         return self.date_index[(self.platform_index == platform) &
-            (self.category_index == category)].drop_duplicates().sort_values().astype(str).tolist()
+            (self.category_index == category)].drop_duplicates().sort_values().strftime('%Y-%m').tolist()
 
     def get_category_data(self, platform, category, start_moment, end_moment):
         return self.df.loc[(self.date_index >= start_moment) &
             (self.date_index <= end_moment)].xs((platform, category))
+
+    @staticmethod
+    def get_item_names(df):
+        return df.index.get_level_values("name").drop_duplicates().to_list()

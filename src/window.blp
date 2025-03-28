@@ -3,16 +3,49 @@ using Adw 1;
 
 template $Window: Adw.ApplicationWindow {
   title: _("Surveam");
-  default-width: 800;
-  default-height: 600;
+  default-width: 1200;
+  default-height: 700;
   width-request: 360;
   height-request: 200;
+
+  Adw.Breakpoint {
+    condition ("max-width: 800sp")
+
+    setters {
+      split_view.collapsed: true;
+    }
+  }
+
+  content: Adw.OverlaySplitView split_view {
+    min-sidebar-width: 320;
+    collapsed: false;
+    show-sidebar: bind sidebar_button.active;
 
     content: Adw.ToolbarView {
       [top]
       Adw.HeaderBar {
+        title-widget: Adw.WindowTitle title {};
+
         [end]
-        MenuButton {
+        ToggleButton sidebar_button {
+          icon-name: "dock-left-symbolic";
+          active: bind split_view.show-sidebar;
+        }
+      }
+      content: Adw.Bin graph_bin {
+        $Graph graph {
+          legend: bind legend_switch.active;
+          legend_position: bind legend_dropdown.selected;
+          filter_items: bind items_switch.active;
+        }
+      };
+    };
+
+    sidebar: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        [end]
+        MenuButton menu_button {
           primary: true;
           icon-name: "open-menu-symbolic";
           tooltip-text: _("Main Menu");
@@ -20,46 +53,115 @@ template $Window: Adw.ApplicationWindow {
         }
       }
 
-      content: Adw.Bin graph_bin {
-        $Graph graph {}
-      };
+      content: ScrolledWindow {
+        Box {
+          orientation: vertical;
 
-    [bottom]
-    CenterBox {
-      hexpand: true;
-      margin-bottom: 12;
-      margin-end: 12;
-      margin-start: 12;
-      margin-top: 12;
+          ListBox {
+            css-classes: ["boxed-list-separate"];
+            selection-mode: none;
+            hexpand: true;
+            margin-bottom: 12;
+            margin-end: 12;
+            margin-start: 12;
+            margin-top: 12;
+            vexpand: true;
 
-      start-widget: DropDown platform_dropdown {
-        halign: start;
-        hexpand: true;
-      };
+            Adw.ComboRow platform_dropdown {
+              title: _("Platform");
+              title-lines: 1;
+            }
 
-      center-widget: DropDown category_dropdown {
-        enable-search: true;
-        search-match-mode: substring;
-        halign: center;
-        hexpand: true;
-        margin-end: 12;
-        margin-start: 12;
-        expression: expr item as <$GtkStringObject>.string;
-      };
+            Adw.ComboRow category_dropdown {
+              title: _("Category");
+              title-lines: 1;
+              enable-search: true;
+              search-match-mode: substring;
+              expression: expr item as <$GtkStringObject>.string;
+            }
 
-      end-widget: Box {
-        spacing: 12;
+            Adw.ActionRow {
+              title: _("Interval");
+              title-lines: 1;
 
-        DropDown start_date_dropdown {
-          halign: end;
-          hexpand: true;
+              Box {
+                margin-top: 6;
+                margin-bottom: 6;
+                css-classes: ["linked"];
+
+                DropDown start_date_dropdown {
+                  css-classes: ["flat"];
+                  halign: end;
+                }
+                DropDown end_date_dropdown {
+                  halign: start;
+                }
+              }
+            }
+
+            Adw.ExpanderRow items_dropdown {
+              title: _("Filter Items");
+              title-lines: 1;
+              enable-expansion: bind items_switch.active;
+
+              [suffix]
+              Switch items_switch {
+                valign: center;
+              }
+
+              Adw.WrapBox items_wrapbox {
+                margin-bottom: 6;
+                margin-end: 6;
+                margin-start: 6;
+                margin-top: 6;
+                line-spacing: 6;
+                child-spacing: 6;
+                justify: fill;
+                justify-last-line: true;
+              }
+            }
+          }
+
+          ListBox {
+            css-classes: ["boxed-list"];
+            selection-mode: none;
+            hexpand: true;
+            margin-bottom: 12;
+            margin-end: 12;
+            margin-start: 12;
+            margin-top: 12;
+
+            Adw.ExpanderRow legend_row {
+              title: _("Show Legend");
+              title-lines: 1;
+              enable-expansion: bind legend_switch.active;
+
+              [suffix]
+              Switch legend_switch {
+                valign: center;
+                active: bind graph.legend;
+              }
+
+              Adw.ComboRow legend_dropdown {
+                title: _("Position");
+                model: StringList {
+                  strings [_("Auto"),
+                           _("Upper Right"),
+                           _("Upper Left"),
+                           _("Lower Left"),
+                           _("Lower Right"),
+                           _("Center Left"),
+                           _("Center Right"),
+                           _("Lower Center"),
+                           _("Upper Center"),
+                           _("Center")]
+                };
+              }
+            }
+          }
         }
-        DropDown end_date_dropdown {
-          halign: start;
-          hexpand: true;
-        }
       };
-    }
+    };
   };
 }
 
